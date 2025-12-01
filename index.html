@@ -80,6 +80,21 @@ main{max-width:1100px;margin:90px auto;padding:16px}
   border-radius:12px;pointer-events:none;
   transition:all .75s cubic-bezier(.28,.75,.32,.98);
 }
+.custom-box{
+  width:90%;
+  max-width:900px;
+  margin:20px auto;
+  background:#fff;
+  border:2px dashed #9333EA;
+  border-radius:10px;
+  padding:14px;
+  font-size:16px;
+  min-height:80px;
+  outline:none;
+}
+.custom-box:focus{
+  border-color:#10B981;
+}
 </style>
 </head>
 
@@ -100,6 +115,8 @@ main{max-width:1100px;margin:90px auto;padding:16px}
     <h2>🌸 Shop Thuê Đồ Yennhi 🌸</h2>
     <p>Mẫu đẹp — Nhiều size — Giá rẻ — Giao nhanh — Uy tín lâu năm!</p>
   </div>
+  <div class="custom-box" contenteditable="true">
+  Shop hiện tại chỉ hỗ trợ trong tỉnh Nam Định thôi nhé </div>
 
   <div class="gallery" id="productList"></div>
 </main>
@@ -137,10 +154,24 @@ main{max-width:1100px;margin:90px auto;padding:16px}
 
 <script>
 const products = [
-  {id:1,name:"Váy Hoa A",price:20000,img:"https://picsum.photos/seed/a/500",desc:"Váy hoa trẻ trung",link:""},
-  {id:2,name:"Áo dài B",price:35000,img:"https://picsum.photos/seed/b/500",desc:"Áo dài truyền thống",link:""},
-  {id:3,name:"Cosplay C",price:30000,img:"https://picsum.photos/seed/c/500",desc:"Hóa trang anime",link:""},
-  {id:4,name:"Maxi D",price:22000,img:"https://picsum.photos/seed/d/500",desc:"Maxi sang trọng",link:""}
+  {id:1,name:"Váy Hoa A",price:20000,img:"https://sf-static.upanhlaylink.com/img/image_20251201d1b40af3735ec015e0ae794a2cb27bac.jpg ",desc:"Váy hoa trẻ trung",link:""},
+  
+  {id:2,name:"Áo dài B",price:35000,img:"https://sf-static.upanhlaylink.com/img/image_20251201d4f7533a0955db7c188bc7f7fbdf3914.jpg",desc:"Áo dài truyền thống mẫu đẹp hot nhất củanó nó",link:""},
+  {id:3,name:"Cosplay C",price:30000,img:"https://sf-static.upanhlaylink.com/img/image_202512012f2b662b8207f57d3b6dadc03f2db834.jpg",desc:"Hóa trang anime",link:""},
+  {id:4,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201ba5a1c644e8350d2cc292aacf1345299.jpg",desc:"Maxi sang trọng",link:""},
+  {id:5,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512012fa5c8ea995d93a4d5a63b7755b9268a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:6,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512016e7d6625c27a0e03817088615bd738bd.jpg",desc:"Maxi sang trọng",link:""},
+  {id:7,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120196086caed121f9ea7a35b1459d685776.jpg",desc:"Maxi sang trọng",link:""},
+  {id:8,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120195c09f8c698263076ceb14741f424531.jpg",desc:"Maxi sang trọng",link:""},
+  {id:9,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512013bbc78d8941ca39582aff60ade1e0f6a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:10,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512010acc6b7591ae0d25ba8be66ad063994b.jpg",desc:"Maxi sang trọng",link:""},
+  {id:11,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120188698138e2b5b06fca60540c95eff48c.jpg",desc:"Maxi sang trọng",link:""},
+  {id:12,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512015e912dd05b739d5f610c001952143ba3.jpg",desc:"Maxi sang trọng",link:""},
+  {id:13,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201b09c3f4066a7ff34fead05dd3db10a69.jpg",desc:"Maxi sang trọng",link:""},
+  {id:14,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201269a097ff86eaa267f5faa4b4567735f.jpg",desc:"Maxi sang trọng",link:""},
+  {id:15,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512013fcda17907b9a7b1371fc04c9f8c208c.jpg",desc:"Maxi sang trọng",link:""},
+  {id:16,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512012d8930f8e880ef14e0d1906c29bc9262.jpg",desc:"Maxi sang trọng",link:""},
+  {id:17,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512019a6fc53b692d4de62416992f742b1abb.jpg",desc:"Maxi sang trọng",link:""}
 ];
 
 let cart = JSON.parse(localStorage.getItem("CART_DATA")||"[]");
@@ -267,6 +298,7 @@ document.getElementById("rentBtnModal").onclick = ()=>{
   const p = products[current];
   window.location.href = "form.html?item=" + encodeURIComponent(p.name);
 };
+document.body.style.zoom = "60%"; // phóng to 20%
 </script>
 
 </body>
