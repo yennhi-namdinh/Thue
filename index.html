@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Yennhi — Shop Thuê Quần Áo</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter, sans-serif;background:#f6f7f8;color:#222}
+
+/* HEADER */
+header{
+  position:fixed;top:0;left:0;right:0;height:64px;background:linear-gradient(90deg,#06B6D4,#9333EA);
+  display:flex;align-items:center;justify-content:space-between;padding:8px 16px;color:#fff;z-index:1000;
+}
+
+#searchBox{
+  padding:8px 14px;border-radius:12px;border:1px solid #ddd;outline:none;min-width:200px;background:#fff;
+}
+
+/* NEW — SHOP INFO */
+.shop-info{
+  background:#fff;
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom:18px;
+  text-align:center;
+}
+.shop-info h2{
+  color:#06B6D4;
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.shop-info p{
+  font-size:15px;color:#444;
+}
+
+/* GALLERY */
+main{max-width:1100px;margin:90px auto;padding:16px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.product-box{background:#fff;border-radius:12px;border:1px solid #eee;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.04)}
+.product-box img{width:100%;height:220px;object-fit:cover;cursor:pointer}
+.product-bottom{padding:12px;display:flex;justify-content:space-between;align-items:center}
+.product-actions{display:flex;gap:8px}
+.view-small{padding:6px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.icon-cart{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#10b981;border:0;cursor:pointer;font-size:18px;color:#fff;
+}
+
+/* CART POPUP */
+.cart-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000}
+.cart-modal-overlay.open{display:flex}
+.cart-modal{width:360px;background:#fff;border-radius:12px;padding:12px;max-height:80vh;overflow:auto}
+.cart-row{display:flex;gap:8px;padding:6px 0;align-items:center}
+.cart-row img{width:48px;height:48px;border-radius:6px;object-fit:cover}
+.cart-remove{margin-left:10px;font-size:18px;font-weight:bold;color:#e11d48;cursor:pointer}
+
+.closeX{background:none;border:0;font-size:18px;font-weight:700;color:#333;cursor:pointer;margin-left:auto}
+
+/* PRODUCT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1500}
+.modal-overlay.open{display:flex}
+.modal{
+  width:90%;max-width:700px;background:#fff;padding:16px;
+  border-radius:14px;display:flex;gap:16px;animation:zoom .2s ease;
+}
+@keyframes zoom{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-left img{width:100%;height:350px;border-radius:12px;object-fit:cover}
+.modal-right{display:flex;flex-direction:column;flex:1}
+#rentBtnModal{margin-top:12px;padding:10px;background:#0ea5e9;color:#fff;border-radius:8px;border:0;cursor:pointer}
+
+/* Animation bay vào giỏ */
+.fly-img{
+  position:fixed;z-index:3000;width:80px;height:80px;object-fit:cover;
+  border-radius:12px;pointer-events:none;
+  transition:all .75s cubic-bezier(.28,.75,.32,.98);
+}
+.custom-box{
+  width:90%;
+  max-width:900px;
+  margin:20px auto;
+  background:#fff;
+  border:2px dashed #9333EA;
+  border-radius:10px;
+  padding:14px;
+  font-size:16px;
+  min-height:80px;
+  outline:none;
+}
+.custom-box:focus{
+  border-color:#10B981;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2></h2>
+  <div style="display:flex;gap:10px;align-items:center">
+    <input id="searchBox" type="text" placeholder="Tìm...">
+    <button id="openCart" class="view-small">🛒</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- ⭐ SHOP INFO -->
+  <div class="shop-info">
+    <h2>🌸 Shop Thuê Đồ Yennhi 🌸</h2>
+    <p>Mẫu đẹp — Nhiều size — Giá rẻ — Giao nhanh — Uy tín lâu năm!</p>
+  </div>
+  <div class="custom-box" contenteditable="true">
+  Shop hiện tại chỉ hỗ trợ trong tỉnh Nam Định thôi nhé </div>
+
+  <div class="gallery" id="productList"></div>
+</main>
+
+
+<!-- CART -->
+<div class="cart-modal-overlay" id="cartModal">
+  <div class="cart-modal">
+    <div style="display:flex;align-items:center">
+      <strong>Giỏ hàng</strong>
+      <button class="closeX" id="closeCart">✖</button>
+    </div>
+    <div id="cartItems"></div>
+    <p id="totalPrice" style="font-weight:700;margin-top:10px">Tổng: 0đ</p>
+  </div>
+</div>
+
+
+<!-- POPUP -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-left">
+      <img id="modalImg" src="">
+    </div>
+    <div class="modal-right">
+      <h3 id="modalName"></h3>
+      <p id="modalPrice" style="color:#0ea5e9;font-weight:700"></p>
+      <p id="modalDesc"></p>
+      <button id="rentBtnModal">Thuê ngay 📞</button>
+      <button class="closeX" id="closeModal" style="margin-top:auto">Đóng</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+const products = [
+  {id:1,name:"Váy Hoa A",price:20000,img:"https://sf-static.upanhlaylink.com/img/image_20251201d1b40af3735ec015e0ae794a2cb27bac.jpg ",desc:"Váy hoa trẻ trung",link:""},
+  
+  {id:2,name:"Áo dài B",price:35000,img:"https://sf-static.upanhlaylink.com/img/image_20251201d4f7533a0955db7c188bc7f7fbdf3914.jpg",desc:"Áo dài truyền thống mẫu đẹp hot nhất củanó nó",link:""},
+  {id:3,name:"Cosplay C",price:30000,img:"https://sf-static.upanhlaylink.com/img/image_202512012f2b662b8207f57d3b6dadc03f2db834.jpg",desc:"Hóa trang anime",link:""},
+  {id:4,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201ba5a1c644e8350d2cc292aacf1345299.jpg",desc:"Maxi sang trọng",link:""},
+  {id:5,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512012fa5c8ea995d93a4d5a63b7755b9268a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:6,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512016e7d6625c27a0e03817088615bd738bd.jpg",desc:"Maxi sang trọng",link:""},
+  {id:7,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120196086caed121f9ea7a35b1459d685776.jpg",desc:"Maxi sang trọng",link:""},
+  {id:8,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120195c09f8c698263076ceb14741f424531.jpg",desc:"Maxi sang trọng",link:""},
+  {id:9,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512013bbc78d8941ca39582aff60ade1e0f6a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:10,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512010acc6b7591ae0d25ba8be66ad063994b.jpg",desc:"Maxi sang trọng",link:""},
+  {id:11,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120188698138e2b5b06fca60540c95eff48c.jpg",desc:"Maxi sang trọng",link:""},
+  {id:12,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512015e912dd05b739d5f610c001952143ba3.jpg",desc:"Maxi sang trọng",link:""},
+  {id:13,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201b09c3f4066a7ff34fead05dd3db10a69.jpg",desc:"Maxi sang trọng",link:""},
+  {id:14,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201269a097ff86eaa267f5faa4b4567735f.jpg",desc:"Maxi sang trọng",link:""},
+  {id:15,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512013fcda17907b9a7b1371fc04c9f8c208c.jpg",desc:"Maxi sang trọng",link:""},
+  {id:16,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512012d8930f8e880ef14e0d1906c29bc9262.jpg",desc:"Maxi sang trọng",link:""},
+  {id:17,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512019a6fc53b692d4de62416992f742b1abb.jpg",desc:"Maxi sang trọng",link:""}
+];
+
+let cart = JSON.parse(localStorage.getItem("CART_DATA")||"[]");
+let current = null;
+
+function saveCart(){localStorage.setItem("CART_DATA",JSON.stringify(cart))}
+function money(n){return n.toLocaleString("vi-VN")+"đ"}
+
+const list = document.getElementById("productList");
+
+function renderProducts(){
+  list.innerHTML = products.map((p,i)=>`
+    <div class="product-box">
+      <img src="${p.img}" data-i="${i}">
+      <div class="product-bottom">
+        <div><b>${p.name}</b><br><small>${money(p.price)}</small></div>
+        <div class="product-actions">
+          <button class="view-small" data-i="${i}">Xem</button>
+          <button class="icon-cart addcart" data-i="${i}">🛒</button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+renderProducts();
+
+/* ANIMATION BAY VÀO GIỎ */
+function flyToCart(img){
+  const fly = img.cloneNode();
+  const rect = img.getBoundingClientRect();
+  fly.classList.add("fly-img");
+  fly.style.left = rect.left+"px";
+  fly.style.top = rect.top+"px";
+  document.body.appendChild(fly);
+
+  const cartBtn = document.getElementById("openCart").getBoundingClientRect();
+  setTimeout(()=>{
+    fly.style.left = cartBtn.left+"px";
+    fly.style.top = cartBtn.top+"px";
+    fly.style.opacity = 0;
+    fly.style.transform = "scale(.2)";
+  },10);
+
+  setTimeout(()=>fly.remove(),800);
+}
+
+
+/* MỞ POPUP */
+const modal=document.getElementById("productModal");
+const modalImg=document.getElementById("modalImg");
+const modalName=document.getElementById("modalName");
+const modalDesc=document.getElementById("modalDesc");
+const modalPrice=document.getElementById("modalPrice");
+
+list.onclick = e=>{
+  const i=e.target.dataset.i;
+  if(i===undefined)return;
+
+  const p=products[i];
+  current=i;
+
+  if(e.target.classList.contains("view-small")){
+    modalImg.src=p.img;
+    modalName.textContent=p.name;
+    modalDesc.textContent=p.desc;
+    modalPrice.textContent=money(p.price);
+    modal.classList.add("open");
+  }
+
+  if(e.target.classList.contains("addcart")){
+    addToCart(i);
+    flyToCart(e.target.closest(".product-box").querySelector("img"));
+  }
+};
+
+document.getElementById("closeModal").onclick=()=>modal.classList.remove("open");
+
+
+/* GIỎ HÀNG */
+const cartModal=document.getElementById("cartModal");
+document.getElementById("openCart").onclick=()=>{renderCart();cartModal.classList.add("open")}
+document.getElementById("closeCart").onclick=()=>cartModal.classList.remove("open")
+
+function addToCart(i){
+  const item=products[i];
+  if(cart.find(x=>x.id==item.id)){alert("Đã có trong giỏ!");return;}
+  cart.push({...item});
+  saveCart();
+  renderCart();
+}
+
+function removeItem(i){cart.splice(i,1);saveCart();renderCart()}
+
+const cartItems=document.getElementById("cartItems");
+const totalEl=document.getElementById("totalPrice");
+
+function renderCart(){
+  if(cart.length===0){
+    cartItems.innerHTML="<p>Giỏ trống</p>";
+    totalEl.textContent="Tổng: 0đ";
+    return;
+  }
+  cartItems.innerHTML = cart.map((c,i)=>`
+    <div class="cart-row">
+      <img src="${c.img}">
+      <span>${c.name}</span>
+      <b style="margin-left:auto">${money(c.price)}</b>
+      <span class="cart-remove" onclick="removeItem(${i})">✖</span>
+    </div>
+  `).join("");
+  totalEl.textContent="Tổng: "+money(cart.reduce((s,i)=>s+i.price,0));
+}
+renderCart();
+
+/* SEARCH */
+document.getElementById("searchBox").oninput=e=>{
+  const q=e.target.value.toLowerCase();
+  document.querySelectorAll(".product-box").forEach(box=>{
+    const name=box.querySelector("b").textContent.toLowerCase();
+    box.style.display=name.includes(q)?"block":"none";
+  });
+};
+document.getElementById("rentBtnModal").onclick = ()=>{
+  const p = products[current];
+  window.location.href = "form.html?item=" + encodeURIComponent(p.name);
+};
+document.body.style.zoom = "60%"; // phóng to 20%
+</script>
+
+</body>
+</html>
