@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat Zalo Style</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:sans-serif}
+body{
+  background: url("https://sf-static.upanhlaylink.com/img/image_202512106a5478de6790bc9f82c60602b6ec5747.jpg") no-repeat center center fixed;
+  background-size: cover;
+  color:#fff;
+  height:100vh;
+  display:flex;
+  flex-direction:column
+}
+
+.chat{flex:1;overflow-y:auto;padding:10px}
+.msg{background:#222;padding:10px;border-radius:15px;margin-bottom:10px;max-width:80%;word-wrap:break-word;overflow-wrap:break-word;white-space:pre-wrap}
+.img-box{
+  width:80px;           /* nhỏ hơn */
+  height:80px;          /* nhỏ hơn */
+  border-radius:15px;   /* bo góc nhẹ */
+  overflow:hidden;
+  margin-bottom:4px;
+  position:relative;
+}
+.img-box img{width:100%;height:100%;object-fit:cover}
+.img-count{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,0.7);padding:4px 8px;border-radius:20px;font-size:12px}
+
+/* ✅ FIX PREVIEW BAR */
+.bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#222;
+  padding:6px;
+  display:flex;
+  gap:5px;
+  align-items:center;
+  z-index:999;
+  min-height:70px;
+}
+
+.preview{
+  display:flex;
+  gap:5px;
+  max-width:160px;
+  overflow-x:auto;
+  align-items:center;
+}
+
+.preview img{
+  widh:55px;
+  height:55px;
+  border-radius:12px;
+  object-fit:cover;
+  border:2px solid #0f0;
+}
+
+input[type=file]{display:none}
+.text{flex:1;padding:10px;border:none;outline:none;border-radius:20px}
+button{background:#0f0;border:none;border-radius:5%;padding:3px 10px;font-size:18px}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:none;z-index:9998}
+.context-menu{position:fixed;background:#222;color:white;padding:12px 16px;border-radius:15px;display:none;font-size:15px;z-index:9999;min-width:160px;text-align:center}
+
+.viewer{position:fixed;inset:0;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999}
+.viewer.hidden{display:none}
+.viewer img{max-width:90%;max-height:80%;border-radius:15px}
+.controls{position:fixed;bottom:30px;display:flex;gap:40px}
+.controls div{width:50px;height:50px;background:rgba(255,255,255,0.2);border-radius:50%;text-align:center;line-height:50px;font-size:30px}
+
+/* Top bar */
+.top-bar{
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 50px;
+  background: #222;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  border-bottom: 1px solid #333;
+}
+
+.back-btn{
+  background:#0f0;
+  color:#000;
+  border:none;
+  border-radius:10px;
+  padding:5px 12px;
+  font-size:16px;
+}
+
+.title{
+  flex:1;
+  text-align:center;
+  font-size:15px;
+  font-weight:bold;
+}
+
+#userBox{
+  background:#111;
+  color:#12bcff;
+  padding:6px 12px;
+  border-radius:12px;
+  font-size:13px;
+}
+
+.msg.me{margin-right:auto;background:#2b8}
+.msg.admin{margin-left:auto;background:#444}
+
+#chat{padding-bottom:100px}
+
+#loadingBox{
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 60px;
+  background: #222;
+  color: #0f0;
+  font-weight: bold;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+  <button class="back-btn" onclick="window.location.href='index.html'">⬅</button>
+  <div class="title">CHAT</div>
+  <div id="userBox">@loading...</div>
+</div>
+
+<div id="loadingBox">Đang tải tin nhắn...</div>
+<div id="chat" class="chat"></div>
+
+<div class="bar">
+  <label for="imgInput" style="font-size:20px;">📷</label>
+  <input id="imgInput" type="file" multiple accept="image/*">
+  <div id="preview" class="preview"></div>
+  <input id="text" class="text" placeholder="Nhập tin nhắn...">
+  <button onclick="sendMsg()">➤</button>
+</div>
+
+<div id="viewer" class="viewer hidden">
+  <img id="viewerImg">
+  <div class="controls">
+    <div id="prev">‹</div>
+    <div id="close">✕</div>
+    <div id="next">›</div>
+  </div>
+</div>
+
+<script>
+let viewImages=[],viewIndex=0,allGroups=[];
+
+function openViewer(groupIndex,start){
+ viewImages=allGroups[groupIndex];
+ viewIndex=start;
+ document.getElementById("viewer").classList.remove("hidden");
+ updateViewer();
+}
+
+function updateViewer(){document.getElementById("viewerImg").src=viewImages[viewIndex]}
+document.getElementById("close").onclick=()=>document.getElementById("viewer").classList.add("hidden");
+document.getElementById("next").onclick=()=>{if(viewIndex<viewImages.length-1){viewIndex++;updateViewer()}};
+document.getElementById("prev").onclick=()=>{if(viewIndex>0){viewIndex--;updateViewer()}};
+
+let selectedImages=[];
+const input=document.getElementById("imgInput");
+const preview=document.getElementById("preview");
+const chat=document.getElementById("chat");
+
+/* ✅ FIX IMAGE PREVIEW */
+input.onchange = function () {
+  const files = Array.from(input.files);
+
+  files.forEach(file => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      selectedImages.push(e.target.result);
+
+      const img = document.createElement("img");
+      img.src = e.target.result;
+
+      img.onclick = () => {
+        viewImages = [...selectedImages];
+        viewIndex = selectedImages.length - 1;
+        document.getElementById("viewer").classList.remove("hidden");
+        updateViewer();
+      };
+
+      preview.appendChild(img);
+    };
+
+    reader.readAsDataURL(file);
+  });
+
+  input.value = "";
+};
+
+function buildMessage(data,key){
+ const msg=document.createElement("div");
+ msg.className="msg";
+ if(data.from==="admin") msg.classList.add("admin");
+ else msg.classList.add("me");
+
+ if(data.images && data.images.length){
+  const box=document.createElement("div");
+  box.className="img-box";
+  const img=document.createElement("img");
+  img.src=data.images[0];
+  box.appendChild(img);
+  if(data.images.length>1){
+   const badge=document.createElement("div");
+   badge.className="img-count";
+   badge.innerText="+"+(data.images.length-1);
+   box.appendChild(badge);
+  }
+  allGroups.push([...data.images]);
+  const idx=allGroups.length-1;
+  box.onclick=()=>openViewer(idx,0);
+  msg.appendChild(box);
+ }
+
+ if(data.text){
+  const t=document.createElement("div");
+  t.innerText=data.text;
+  msg.appendChild(t);
+ }
+
+ chat.appendChild(msg);
+ chat.scrollTop=chat.scrollHeight;
+}
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getDatabase,ref,push,onChildAdded } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import { getFirestore,doc,getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyBhLH36Hz6TI6gmJJTHP1Dztrbdxi9VGGs",
+ authDomain:"shopyennhi-6baae.firebaseapp.com",
+ databaseURL:"https://shopyennhi-6baae-default-rtdb.firebaseio.com",
+ projectId:"shopyennhi-6baae",
+ storageBucket:"shopyennhi-6baae.firebasestorage.app",
+ messagingSenderId:"67718854816",
+ appId:"1:67718854816:web:41ad03300cca3dbe4031c5"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+const fs=getFirestore(app);
+
+let username="guest";
+let roomRef=null;
+
+const userBox=document.getElementById("userBox");
+const textInput=document.getElementById("text");
+const loadingBox = document.getElementById("loadingBox");
+
+onAuthStateChanged(auth,async(user)=>{
+ if(!user){userBox.innerText="@guest";return;}
+ const snap=await getDoc(doc(fs,"users",user.uid));
+ if(!snap.exists()) return;
+
+ username=snap.data().username;
+ userBox.innerText="@"+username;
+ roomRef=ref(db,"chats/"+username);
+});
+
+let firstMessageLoaded=false;
+
+function waitRoom(){
+ if(!roomRef){
+  setTimeout(waitRoom,100);
+  return;
+ }
+
+ onChildAdded(roomRef,(s)=>{
+  buildMessage(s.val(),s.key);
+
+  if(!firstMessageLoaded){
+   firstMessageLoaded=true;
+   requestAnimationFrame(()=>loadingBox.style.display="none");
+  }
+ });
+}
+
+waitRoom();
+
+window.sendMsg=function(){
+ const text=textInput.value.trim();
+ if(!text && selectedImages.length===0) return;
+
+ push(ref(db,"chats/"+username),{
+  text:text||"",
+  images:selectedImages||[],
+  time:Date.now(),
+  from:"user"
+ });
+
+ selectedImages=[];
+ preview.innerHTML="";
+ input.value="";
+ textInput.value="";
+};
+</script>
+
+</body>
+</html>

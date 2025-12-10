@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Yennhi — Shop Thuê Quần Áo</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter, sans-serif;background:#f6f7f8;color:#222}
+
+/* HEADER */
+header{
+  position:fixed;top:0;left:0;right:0;height:64px;background:linear-gradient(90deg,#06B6D4,#9333EA);
+  display:flex;align-items:center;justify-content:space-between;padding:8px 16px;color:#fff;z-index:1000;
+}
+
+#searchBox{
+  padding:8px 14px;border-radius:12px;border:1px solid #ddd;outline:none;min-width:200px;background:#fff;
+}
+
+/* NEW — SHOP INFO */
+.shop-info{
+  background:#fff;
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom:18px;
+  text-align:center;
+}
+.shop-info h2{
+  color:#06B6D4;
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.shop-info p{
+  font-size:15px;color:#444;
+}
+
+/* GALLERY */
+main{max-width:1100px;margin:90px auto;padding:16px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.product-box{background:#fff;border-radius:12px;border:1px solid #eee;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.04)}
+.product-box img{width:100%;height:220px;object-fit:cover;cursor:pointer}
+.product-bottom{padding:12px;display:flex;justify-content:space-between;align-items:center}
+.product-actions{display:flex;gap:8px}
+.view-small{padding:6px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.icon-cart{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#10b981;border:0;cursor:pointer;font-size:18px;color:#fff;
+}
+
+/* CART POPUP */
+.cart-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:2000}
+.cart-modal-overlay.open{display:flex}
+.cart-modal{width:360px;background:#fff;border-radius:12px;padding:12px;max-height:80vh;overflow:auto}
+.cart-row{display:flex;gap:8px;padding:6px 0;align-items:center}
+.cart-row img{width:48px;height:48px;border-radius:6px;object-fit:cover}
+.cart-remove{margin-left:10px;font-size:18px;font-weight:bold;color:#e11d48;cursor:pointer}
+
+.closeX{background:none;border:0;font-size:18px;font-weight:700;color:#333;cursor:pointer;margin-left:auto}
+
+/* PRODUCT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1500}
+.modal-overlay.open{display:flex}
+.modal{
+  width:90%;max-width:700px;background:#fff;padding:16px;
+  border-radius:14px;display:flex;gap:16px;animation:zoom .2s ease;
+}
+@keyframes zoom{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-left img{width:100%;height:350px;border-radius:12px;object-fit:cover}
+.modal-right{display:flex;flex-direction:column;flex:1}
+#rentBtnModal{margin-top:12px;padding:10px;background:#0ea5e9;color:#fff;border-radius:8px;border:0;cursor:pointer}
+
+/* Animation bay vào giỏ */
+.fly-img{
+  position:fixed;z-index:3000;width:80px;height:80px;object-fit:cover;
+  border-radius:12px;pointer-events:none;
+  transition:all .75s cubic-bezier(.28,.75,.32,.98);
+}
+.custom-box{
+  width:90%;
+  max-width:900px;
+  margin:20px auto;
+  background:#fff;
+  border:2px dashed #9333EA;
+  border-radius:10px;
+  padding:14px;
+  font-size:16px;
+  min-height:80px;
+  outline:none;
+}
+.custom-box:focus{
+  border-color:#10B981;
+}
+
+
+.left-tag-box{
+  width: 350px;           /* Độ dài ngang */
+  height: 60px;           /* Độ cao */
+  background: #d1d1d1;    /* Màu xám giống mẫu */
+  border-radius: 40px;    /* Bo cong mạnh 2 đầu */
+  display:flex;
+  align-items:center;
+  padding-left:20px;
+  font-size:20px;         /* Cỡ chữ */
+  margin: 10px 0;
+  cursor:text;
+}
+
+
+.grid-text-box{
+  background:#d1d1d1;
+  border-radius:30px;
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding-left:20px;
+  font-size:20px;
+  grid-column: span 2;     /* Để nó dài bằng 2 ô */
+  cursor:text;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: 0.8s ease;
+}
+
+.reveal.show {
+    opacity: 1;
+    transform: translateY(0px);
+}
+    background: #0d001b; /* màu tối đẹp cho hạt tím */
+    background: #0d001b; /* màu tối đẹp cho hạt tím */
+.animate {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.animate.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.mini-menu {
+  width: 200px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden; /* không xóa */
+  max-height: 0;
+  transition: max-height 0.4s ease;
+  position: absolute;
+  top: 60px; 
+  left: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.mini-menu.show {
+  max-height: 300px; /* cao đủ chứa chữ */
+}
+
+.mini-item {
+  padding: 12px 16px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.mini-item:hover {
+  background: #eee;
+}
+.hamburger {
+  font-size: 30px;
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+}
+.user-icon{
+  position:absolute;
+  right:540px;
+  top:50%;
+  transform:translateY(-50%);
+  width:42px;
+  height:42px;
+  background:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  cursor:pointer;
+}
+
+.user-menu{
+  position:absolute;
+  right:390px;
+  top:70px;
+  background:white;
+  width:200px;
+  border-radius:16px;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+  z-index:9999;
+}
+
+.user-menu div{
+  padding:14px;
+  font-size:16px;
+  font-weight:500;
+  cursor:pointer;
+  border-bottom:1px solid #eee;
+}
+
+.user-menu div:hover{
+  background:#f5eaff;
+  color:#7b2fff;
+}
+.user-menu{
+  position:absolute;
+  right:390px;
+  top:70px;
+  background:white;
+  width:220px;
+  border-radius:14px;
+  box-shadow:0 10px 25px rgba(0,0,0,.25);
+  display:none;
+  flex-direction:column;
+  z-index:9999;
+}
+
+.menu-item{
+  padding:14px 18px;
+  font-size:16px;
+  font-weight:600;
+  color:#333;
+  cursor:pointer;
+  border-bottom:1px solid #eee;
+}
+
+.menu-item:hover{
+  background:#f4e8ff;
+  color:#7b2fff;
+
+  
+#notifyDot{
+  display:none;
+  width:10px;
+  height:10px;
+  margin-left:8px;
+  background:red;
+  border-radius:50%;
+}
+
+</style>
+</head>
+<script>
+document.querySelectorAll("img").forEach(img => {
+  // Nếu có ảnh thật trong data-src thì dùng lazy real load
+  if (img.dataset.src) {
+    const real = new Image();
+    real.src = img.dataset.src;
+    real.onload = () => img.src = img.dataset.src;
+  }
+});
+</script>
+<body>
+<header>
+  <!-- Nút ba gạch -->
+<div class="hamburger" id="miniMenuBtn">☰</div>
+<div class="user-icon" id="userIcon">👤</div>
+
+<div class="user-menu" id="userMenu">
+  <div class="menu-item" id="loginBtn">🔐 Đăng nhập / Đăng ký</div>
+    <div id="profileBtn" style="padding:14px 18px;cursor:pointer;display:none;color:#000000;">👤 Cá nhân</div>
+  <div class="menu-item" id="rentBtn" style="display:none;">🛍️ Đặt thuê đồ</div>
+</div>
+
+
+<!-- Khung trượt xuống -->
+<div class="mini-menu" id="miniMenu">
+  <div class="mini-item" onclick="openTab('index.html')">🏠 Trang chủ</div>
+  <div class="mini-item" onclick="openTab('feadback.html')">❤️ feadback</div>
+  <div class="mini-item" onclick="openTab('lienhe.html')">📞 Liên hệ</div>
+    <div class="mini-item" onclick="openTab('thongbao.html')">🔔 Thông báo shop</div>
+    <div class="mini-item" onclick="openTab('file.html')">🔔 chat with shop</div>
+</div>
+
+</div>
+  <h2></h2>
+  <div style="display:flex;gap:10px;align-items:center">
+    <input id="searchBox" type="text" placeholder="Tìm...">
+    <button id="openCart" class="view-small">🛒</button>
+  </div>
+  <!-- Tối ưu tải ảnh toàn web -->
+<meta http-equiv="Cache-Control" content="max-age=2592000, public">
+
+</header>
+
+<main>
+
+  <!-- ⭐ SHOP INFO -->
+  <div class="shop-info">
+    <h2>🌸 Shop Thuê Đồ Yennhi 🌸</h2>
+    <p>Mẫu đẹp — Nhiều size — Giá rẻ — Giao nhanh — Uy tín lâu năm!</p>
+  </div>
+  <div class="custom-box">
+  các lưu ý :
+bạn có thể nhận tin nhắn ở phần thuê đồ trong phần icon </div>
+
+<div class="left-tag-box" contenteditable="flase">
+  sản phầm mới của shop nhi
+</div>
+  <div class="gallery" id="productList"></div>
+</main>
+
+
+  
+
+
+<!-- CART -->
+<div class="cart-modal-overlay" id="cartModal">
+  <div class="cart-modal">
+    <div style="display:flex;align-items:center">
+      <strong>Giỏ hàng</strong>
+      <button class="closeX" id="closeCart">✖</button>
+    </div>
+    <div id="cartItems"></div>
+    <p id="totalPrice" style="font-weight:700;margin-top:10px">Tổng: 0đ</p>
+  </div>
+</div>
+
+
+<!-- POPUP -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-left">
+      <img id="modalImg" src="">
+    </div>
+    <div class="modal-right">
+      <h3 id="modalName"></h3>
+      <p id="modalPrice" style="color:#0ea5e9;font-weight:700"></p>
+      <p id="modalDesc"></p>
+      <button type="button" id="rentBtnModal">Thuê ngay 📞</button>
+      <button class="closeX" id="closeModal" style="margin-top:auto">Đóng</button>
+    </div>
+  </div>
+</div>
+<!-- POPUP YÊU CẦU ĐĂNG NHẬP -->
+<div id="loginPopup" style="
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+">
+  <div style="
+    width: 90%;
+    max-width: 380px;
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    animation: zoomIn .2s ease;
+  ">
+
+    <!-- Nút X -->
+    <div id="closeLoginPopup" style="
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+    ">✖</div>
+
+    <h3 style="margin-bottom:10px">⚠ Cần đăng nhập</h3>
+    <p style="font-size:15px;color:#444;margin-bottom:20px">
+      Bạn cần đăng nhập hoặc đăng kí để sử dụng chức năng thuê đồ.
+    </p>
+
+    <button id="agreeLogin" style="
+      width: 100%;
+      padding: 12px;
+      background: #7b2fff;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    ">Đồng ý</button>
+
+  </div>
+</div>
+
+<style>
+@keyframes zoomIn {
+  from {transform: scale(0.8); opacity: 0;}
+  to {transform: scale(1); opacity: 1;}
+}
+</style>
+
+
+<script>
+const products = [
+  {id:1,name:"Váy Hoa A",price:20000,img:"https://sf-static.upanhlaylink.com/img/image_20251201d1b40af3735ec015e0ae794a2cb27bac.jpg ",desc:"Váy hoa trẻ trung",link:""},
+ 
+  {id:2,name:"Áo dài B",price:35000,img:"https://sf-static.upanhlaylink.com/img/image_20251201d4f7533a0955db7c188bc7f7fbdf3914.jpg",desc:"Áo dài truyền thống mẫu đẹp hot nhất củanó nó",link:""},
+  {id:3,name:"Cosplay C",price:30000,img:"https://sf-static.upanhlaylink.com/img/image_202512012f2b662b8207f57d3b6dadc03f2db834.jpg",desc:"Hóa trang anime",link:""},
+  {id:4,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201ba5a1c644e8350d2cc292aacf1345299.jpg",desc:"Maxi sang trọng",link:""},
+  {id:5,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512012fa5c8ea995d93a4d5a63b7755b9268a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:6,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512016e7d6625c27a0e03817088615bd738bd.jpg",desc:"Maxi sang trọng",link:""},
+  {id:7,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120196086caed121f9ea7a35b1459d685776.jpg",desc:"Maxi sang trọng",link:""},
+  {id:8,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120195c09f8c698263076ceb14741f424531.jpg",desc:"Maxi sang trọng",link:""},
+  {id:9,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512013bbc78d8941ca39582aff60ade1e0f6a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:10,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512010acc6b7591ae0d25ba8be66ad063994b.jpg",desc:"Maxi sang trọng",link:""},
+  {id:11,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120188698138e2b5b06fca60540c95eff48c.jpg",desc:"Maxi sang trọng",link:""},
+  {id:12,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512015e912dd05b739d5f610c001952143ba3.jpg",desc:"Maxi sang trọng",link:""},
+  {id:13,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201b09c3f4066a7ff34fead05dd3db10a69.jpg",desc:"Maxi sang trọng",link:""},
+  {id:14,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251201269a097ff86eaa267f5faa4b4567735f.jpg",desc:"Maxi sang trọng",link:""},
+  {id:15,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512013fcda17907b9a7b1371fc04c9f8c208c.jpg",desc:"Maxi sang trọng",link:""},
+  {id:16,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512012d8930f8e880ef14e0d1906c29bc9262.jpg",desc:"Maxi sang trọng",link:""},
+  {id:17,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512019a6fc53b692d4de62416992f742b1abb.jpg",desc:"Maxi sang trọng",link:""},
+  {id:18,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061bfad889f109041b94130d70b969a64d.jpg",desc:"Maxi sang trọng",link:""},
+  {id:19,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512069b633272c3280e71f8edc4d1448873e4.jpg",desc:"Maxi sang trọng",link:""},
+  {id:20,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206811b309e5e6d6553066349659adfa23e.jpg",desc:"Maxi sang trọng",link:""},
+  {id:21,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512068d53d18b54f2b94beb23e7366368a41a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:22,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120639017831d8543af5a059a44182fe4ee9.jpg",desc:"Maxi sang trọng",link:""},
+  {id:23,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061729b7afb3908f683950fd23524a626a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:24,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120667b4ae507cfef6b75c275dafff6be0fb.jpg",desc:"Maxi sang trọng",link:""},
+  {id:25,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120603ed4c4be8eb20a87a8d201112f7600f.jpg",desc:"Maxi sang trọng",link:""},
+  {id:26,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061901983d1f7170f595413cd47914ba5b.jpg",desc:"Maxi sang trọng",link:""},
+  {id:27,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120683898f2d854e5c5010289f87b45f7cc1.jpg",desc:"Maxi sang trọng",link:""},
+  {id:28,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206af401ce6965914327f989b758990a63d.jpg",desc:"Maxi sang trọng",link:""},
+  {id:29,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512067484c30634262333e5be31b39c9aa1c4.jpg",desc:"Maxi sang trọng",link:""},
+  {id:30,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512062c2e2aaea32e3ad1229acfb736ee98c6.jpg",desc:"Maxi sang trọng",link:""},
+  {id:31,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206762eaaa144bb1aa772b38a6dfb470839.jpg",desc:"Maxi sang trọng",link:""},
+  {id:32,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206919b0ad16916eefc137e71ead3dd6798.jpg",desc:"Maxi sang trọng",link:""},
+  {id:33,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512062bac821c46dfa98699587d9c08ac2987.jpg",desc:"Maxi sang trọn44g",link:""},
+  {id:34,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206919b0ad16916eefc137e71ead3dd6798.jpg",desc:"Maxi sang trọng",link:""},
+  {id:35,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206762eaaa144bb1aa772b38a6dfb470839.jpg",desc:"Maxi sang trọng",link:""},
+  {id:36,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512062c2e2aaea32e3ad1229acfb736ee98c6.jpg",desc:"Maxi sang trọng",link:""},
+  {id:37,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512067484c30634262333e5be31b39c9aa1c4.jpg",desc:"Maxi sang trọng",link:""},
+  {id:38,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206af401ce6965914327f989b758990a63d.jpg",desc:"Maxi sang trọng",link:""},
+  {id:39,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120683898f2d854e5c5010289f87b45f7cc1.jpg",desc:"Maxi sang trọng",link:""},
+  {id:40,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061901983d1f7170f595413cd47914ba5b.jpg",desc:"Maxi sang trọng",link:""},
+  {id:41,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120603ed4c4be8eb20a87a8d201112f7600f.jpg",desc:"Maxi sang trọng",link:""},
+  {id:42,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120667b4ae507cfef6b75c275dafff6be0fb.jpg",desc:"Maxi sang trọng",link:""},
+  {id:43,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061729b7afb3908f683950fd23524a626a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:44,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120639017831d8543af5a059a44182fe4ee9.jpg",desc:"Maxi sang trọng",link:""},
+  {id:45,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512068d53d18b54f2b94beb23e7366368a41a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:46,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206811b309e5e6d6553066349659adfa23e.jpg",desc:"Maxi sang trọng",link:""},
+  {id:47,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512069b633272c3280e71f8edc4d1448873e4.jpg",desc:"Maxi sang trọng",link:""},
+  {id:48,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061bfad889f109041b94130d70b969a64d.jpg",desc:"Maxi sang trọng",link:""},
+  {id:49,name:"Maxi De",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206bd72e460118cd973872e1e0b591edd90.jpg",desc:"Maxi sang trọng",link:""},
+  {id:50,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512068f207bbbde4f2efc14ae9ebf8c02d833.jpg",desc:"Maxi sang trọng",link:""},
+  {id:51,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206f2d42b0a68e94846d5d7eee92a02c077.jpg",desc:"Maxi sang trọng",link:""},
+  {id:52,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061f7100d2ce808a4c7e89e95d6540c3c9.jpg",desc:"Maxi sang trọng",link:""},
+  {id:53,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512066ee7183dcdf0c32675868572d535f392.jpg",desc:"Maxi sang trọng",link:""},
+  {id:54,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120670c2049f24128c7c8399e81107e9994a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:55,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206391e717c1af18bfe9865d2c5187ff349.jpg",desc:"Maxi sang trọng",link:""},
+  {id:56,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206d55f334d38504824721cad7502f18356.jpg",desc:"Maxi sang trọng",link:""},
+  {id:57,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120671b406a8b910a47aff85d52657262ac4.jpg",desc:"Maxi sang trọng",link:""},
+  {id:58,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512064fb176086e8301eccd92073780122b25.jpg",desc:"Maxi sang trọng",link:""},
+  {id:59,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206a1df0a3aaeac64b98d9bcd4c87c67066.jpg",desc:"Maxi sang trọng",link:""},
+  {id:60,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206b98b208b730402180734804db99effa3.jpg",desc:"Maxi sang trọng",link:""},
+  {id:61,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206479d3abc21253a6a1e73edc389de3d32.jpg",desc:"Maxi sang trọng",link:""},
+  {id:62,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206c6898f25454e3cfbd3cff8675fea8c01.jpg",desc:"Maxi sang trọng",link:""},
+  {id:63,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512061ee5dda4f37439fe3e078b693476ecbb.jpg",desc:"Maxi sang trọng",link:""},
+  {id:64,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206821ce0856204e85e1f2c95ff1d9bf8ec.jpg",desc:"Maxi sang trọng",link:""},
+  {id:65,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206ae0043eac8f2cdd48118276ac2c13470.jpg",desc:"Maxi sang trọng",link:""},
+  {id:66,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120680d98a08686c728c86743af9fe4d2beb.jpg",desc:"Maxi sang trọng",link:""},
+  {id:67,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120663c0bf1dedbf89a8bc19f56310409615.jpg",desc:"Maxi sang trọng",link:""},
+  {id:68,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206c3f2121c2b4b9bed8de2b900c1b7855e.jpg",desc:"Maxi sang trọng",link:""},
+  {id:69,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206e4b7e2610d003378d99a368d8fe55dc1.jpg",desc:"Maxi sang trọng",link:""},
+  {id:70,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206cb2c638caa46310475f70f8492b9d884.jpg",desc:"Maxi sang trọng",link:""},
+  {id:71,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206355763e1ddf6cc2b6f23d935afb3bd5b.jpg",desc:"Maxi sang trọng",link:""},
+  {id:72,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120677176e0a4a160bbc69471bac822fde08.jpg",desc:"Maxi sang trọng",link:""},
+  {id:73,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206c80be71299f4d360b37ecd0d7d9d8326.jpg",desc:"Maxi sang trọng",link:""},
+  {id:74,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206d2276158aeee92b03f7cfaa42a9656a3.jpg",desc:"Maxi sang trọng",link:""},
+  {id:75,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206025cf789322cbdd941ebccd883ee66cf.jpg",desc:"Maxi sang trọng",link:""},
+  {id:76,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206853a8a6ccd68d473336ac9eeae004e13.jpg",desc:"Maxi sang trọng",link:""},
+  {id:77,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206c9c5188d08083869ae2a0264a4c1eaeb.jpg",desc:"Maxi sang trọng",link:""},
+  {id:78,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206fa1ddb0630d00a88f31517b4321e2b79.jpg",desc:"Maxi sang trọng",link:""},
+  {id:79,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120630d236b22a8bd52450e6b5f4f96b472e.jpg",desc:"Maxi sang trọng",link:""},
+  {id:80,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512069b764a07cf72e77588b35355c2b04ec8.jpg",desc:"Maxi sang trọng",link:""},
+  {id:81,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512068c1aa2796eb2282097d710e62fa0470a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:82,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206ec76c886969302b595e2871daef30467.jpg",desc:"Maxi sang trọng",link:""},
+  {id:83,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512066e0a939767434436bde6e4b21f5ba2b6.jpg",desc:"Maxi sang trọng",link:""},
+  {id:84,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206558f40e6582813881f930bf9bea7f704.jpg",desc:"Maxi sang trọng",link:""},
+  {id:85,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_2025120618f0b4e46aa16ed5db36bfc772a02da9.jpg",desc:"Maxi sang trọng",link:""},
+  {id:86,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512060416654d6ece4606ac213f120636fffe.jpg",desc:"Maxi sang trọng",link:""},
+  {id:87,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_202512067a47c119a9b705a67cddf06e852ccf5a.jpg",desc:"Maxi sang trọng",link:""},
+  {id:88,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206d27dfce7f5d597f8be96920a0e6f18da.jpg",desc:"Maxi sang trọng",link:""},
+  {id:89,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206474106afbcd2e7e035c15f44c09e21de.jpg",desc:"Maxi sang trọng",link:""},
+  {id:90,name:"Maxi D",price:22000,img:"https://sf-static.upanhlaylink.com/img/image_20251206c20.jpg",desc:"Maxi sang trọng",link:""}
+];
+
+let cart = JSON.parse(localStorage.getItem("CART_DATA")||"[]");
+let current = null;
+
+function saveCart(){localStorage.setItem("CART_DATA",JSON.stringify(cart))}
+function money(n){return n.toLocaleString("vi-VN")+"đ"}
+
+const list = document.getElementById("productList");
+
+
+/* ANIMATION BAY VÀO GIỎ */
+function flyToCart(img){
+  const fly = img.cloneNode();
+  const rect = img.getBoundingClientRect();
+  fly.classList.add("fly-img");
+  fly.style.left = rect.left+"px";
+  fly.style.top = rect.top+"px";
+  document.body.appendChild(fly);
+
+  const cartBtn = document.getElementById("openCart").getBoundingClientRect();
+  setTimeout(()=>{
+    fly.style.left = cartBtn.left+"px";
+    fly.style.top = cartBtn.top+"px";
+    fly.style.opacity = 0;
+    fly.style.transform = "scale(.2)";
+  },10);
+
+  setTimeout(()=>fly.remove(),800);
+}
+
+
+/* MỞ POPUP */
+const modal=document.getElementById("productModal");
+const modalImg=document.getElementById("modalImg");
+const modalName=document.getElementById("modalName");
+const modalDesc=document.getElementById("modalDesc");
+const modalPrice=document.getElementById("modalPrice");
+
+list.onclick = e=>{
+  const i=e.target.dataset.i;
+  if(i===undefined)return;
+
+  const p=products[i];
+  current=i;
+
+  if(e.target.classList.contains("view-small")){
+    modalImg.src=p.img;
+    modalName.textContent=p.name;
+    modalDesc.textContent=p.desc;
+    modalPrice.textContent=money(p.price);
+    modal.classList.add("open");
+  }
+
+  if(e.target.classList.contains("addcart")){
+    addToCart(i);
+    flyToCart(e.target.closest(".product-box").querySelector("img"));
+  }
+};
+
+document.getElementById("closeModal").onclick=()=>modal.classList.remove("open");
+
+
+/* GIỎ HÀNG */
+const cartModal=document.getElementById("cartModal");
+document.getElementById("openCart").onclick=()=>{renderCart();cartModal.classList.add("open")}
+document.getElementById("closeCart").onclick=()=>cartModal.classList.remove("open")
+
+function addToCart(i){
+  const item=products[i];
+  if(cart.find(x=>x.id==item.id)){alert("Đã có trong giỏ!");return;}
+  cart.push({...item});
+  saveCart();
+  renderCart();
+}
+
+function removeItem(i){cart.splice(i,1);saveCart();renderCart()}
+
+const cartItems=document.getElementById("cartItems");
+const totalEl=document.getElementById("totalPrice");
+
+function renderCart(){
+  if(cart.length===0){
+    cartItems.innerHTML="<p>Giỏ trống</p>";
+    totalEl.textContent="Tổng: 0đ";
+    return;
+  }
+  cartItems.innerHTML = cart.map((c,i)=>`
+    <div class="cart-row">
+      <img src="${c.img}">
+      <span>${c.name}</span>
+      <b style="margin-left:auto">${money(c.price)}</b>
+      <span class="cart-remove" onclick="removeItem(${i})">✖</span>
+    </div>
+  `).join("");
+  totalEl.textContent="Tổng: "+money(cart.reduce((s,i)=>s+i.price,0));
+}
+renderCart();
+
+/* SEARCH */
+document.getElementById("searchBox").oninput=e=>{
+  const q=e.target.value.toLowerCase();
+  document.querySelectorAll(".product-box").forEach(box=>{
+    const name=box.querySelector("b").textContent.toLowerCase();
+    box.style.display=name.includes(q)?"block":"none";
+  });
+};
+
+document.body.style.zoom = "60%"; // phóng to 20%
+const textBoxes = [
+  { pos: 2, text: "sản phẩm của shop" }
+
+];
+
+function renderProducts(){
+  let html = "";
+
+  products.forEach((p, i) => {
+
+    // Render sản phẩm
+    html += `
+      <div class="product-box">
+        <img src="${p.img}" data-i="${i}">
+        <div class="product-bottom">
+          <div><b>${p.name}</b><br><small>${money(p.price)}</small></div>
+          <div class="product-actions">
+            <button class="view-small" data-i="${i}">Xem</button>
+            <button class="icon-cart addcart" data-i="${i}">🛒</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ⭐ CHÈN KHUNG CHỮ
+    textBoxes.forEach(tb => {
+      if(tb.pos === i){
+        html += `
+          <div class="grid-text-box" contenteditable="true">
+            ${tb.text}
+          </div>
+        `;
+      }
+    });
+
+  });
+
+  list.innerHTML = html;
+}
+
+renderProducts(); 
+
+
+
+const miniMenu = document.getElementById("miniMenu");
+const miniBtn = document.getElementById("miniMenuBtn");
+
+miniBtn.onclick = () => {
+  miniMenu.classList.toggle("show");
+};
+
+// Hàm mở tab
+function openTab(url){
+  window.location.href = url; // hoặc window.open(url)
+}
+</script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyBhLH36Hz6TI6gmJJTHP1Dztrbdxi9VGGs",
+  authDomain: "shopyennhi-6baae.firebaseapp.com"
+});
+
+const auth = getAuth(app);
+
+document.addEventListener("DOMContentLoaded", ()=>{
+
+  const icon   = document.getElementById("userIcon");
+  const menu   = document.getElementById("userMenu");
+  const login  = document.getElementById("loginBtn");
+  const profile= document.getElementById("profileBtn");
+  const rent   = document.getElementById("rentBtn");
+
+  icon.onclick = ()=> {
+    menu.style.display = (menu.style.display==="flex") ? "none" : "flex";
+  };
+
+  document.addEventListener("click",(e)=>{
+    if(!icon.contains(e.target) && !menu.contains(e.target)){
+      menu.style.display="none";
+    }
+  });
+
+  onAuthStateChanged(auth,(user)=>{
+    if(user){
+      login.style.display="none";
+      profile.style.display="block";
+      rent.style.display="block";
+    }else{
+      login.style.display="block";
+      profile.style.display="none";
+      rent.style.display="none";
+    }
+  });
+
+  login.onclick   = ()=> location.href="login.html";
+  rent.onclick    = ()=> location.href="l.html";
+  profile.onclick = ()=> location.href="profile.html";
+
+});
+// LƯU TRẠNG THÁI LOGIN THẬT
+let isLoggedIn = false;
+
+// Theo dõi trạng thái đăng nhập thật của Firebase
+onAuthStateChanged(auth,(user)=>{
+  isLoggedIn = !!user;
+});
+
+// Lấy element sau khi DOM tải xong
+document.addEventListener("DOMContentLoaded", ()=>{
+
+  const rentBtnModal = document.getElementById("rentBtnModal");
+  const loginPopup = document.getElementById("loginPopup");
+  const closeLoginPopup = document.getElementById("closeLoginPopup");
+  const agreeLogin = document.getElementById("agreeLogin");
+
+  if(rentBtnModal){
+    rentBtnModal.addEventListener("click", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      if (!isLoggedIn) {
+        loginPopup.style.display = "flex";
+      } else {
+        window.location.href = "l.html";
+      }
+    });
+  }
+
+  // Nút X
+  if(closeLoginPopup){
+    closeLoginPopup.onclick = () => {
+      loginPopup.style.display = "none";
+    };
+  }
+
+  // Nút Đồng ý
+  if(agreeLogin){
+    agreeLogin.onclick = () => {
+      window.location.href = "login.html";
+    };
+  }
+
+});
+const notifyDot = document.getElementById("notifyDot");
+
+function loadInbox(username){
+  const inboxRef = ref(db, "adminToUser/" + username.replace("@",""));
+
+  onValue(inboxRef, (snap) => {
+    if(snap.exists()){
+      notifyDot.style.display = "inline-block"; // bật chấm đỏ
+    }else{
+      notifyDot.style.display = "none"; // tắt nếu không có tin
+    }
+  });
+}
+</script>
+</script>
+
+</script>
+</body>
+</html>

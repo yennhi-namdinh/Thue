@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thuê Quần Áo — Yennhi Shop</title>
+
+<style>
+body{
+  font-family: Inter, sans-serif;
+  background:#f5f5f5;
+  margin:0;
+  padding:0;
+}
+header{
+  background:#7b2fff;
+  color:white;
+  padding:18px;
+  font-size:22px;
+  font-weight:600;
+  text-align:center;
+  position:relative;
+}
+
+#mailIcon{
+  position:absolute;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+  font-size:20px;
+  cursor:pointer;
+  background:rgba(255,255,255,0.2);
+  padding:6px 10px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#mailBadge{
+  position:absolute;
+  top:-5px;
+  right:-5px;
+  background:red;
+  color:white;
+  font-size:12px;
+  padding:2px 6px;
+  border-radius:50%;
+  display:none;
+}
+
+#userBox{
+  position:absolute;
+  right:70px;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(255,255,255,0.2);
+  padding:6px 10px;
+  font-size:14px;
+  border-radius:10px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+}
+
+#mailBox{
+  position:fixed;
+  top:70px;
+  right:10px;
+  width:300px;
+  max-height:420px;
+  background:white;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.3);
+  display:none;
+  flex-direction:column;
+  z-index:9999;
+}
+
+#mailHeader{
+  background:#7b2fff;
+  color:white;
+  padding:12px;
+  font-weight:600;
+  text-align:center;
+  position:relative;
+  border-radius:16px 16px 0 0;
+}
+
+#closeMail{
+  position:absolute;
+  right:12px;
+  top:10px;
+  cursor:pointer;
+}
+
+#mailList{
+  padding:10px;
+  overflow-y:auto;
+  font-size:14px;
+}
+
+.mail-item{
+  background:#f4f4f4;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:10px;
+}
+
+.container{
+  max-width:600px;
+  margin:30px auto;
+  background:white;
+  padding:20px;
+  border-radius:16px;
+  box-shadow:0 6px 18px rgba(0,0,0,.15);
+}
+
+h2{
+  color:#7b2fff;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+.guide{
+  font-size:14px;
+  margin-bottom:20px;
+  color:#555;
+}
+
+input, textarea{
+  width:100%;
+  padding:12px;
+  margin:8px 0;
+  font-size:16px;
+  border:1px solid #ccc;
+  border-radius:10px;
+  box-sizing:border-box;
+  background:#fff;
+  color:#000;
+  -webkit-text-fill-color: #000;
+  opacity: 1;
+}
+
+button{
+  width:100%;
+  background:#7b2fff;
+  color:white;
+  border:none;
+  padding:14px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  margin-top:12px;
+  cursor:pointer;
+}
+
+button:active{transform:scale(0.98)}
+/* Nút 3 gạch */
+.hamburger {
+  position: absolute;
+  left: 16px;
+  top: 8px;
+  font-size: 34px;
+  background: rgba(255,255,255,0.15);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.hamburger:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Menu trượt xuống */
+.mini-menu {
+  position: absolute;
+  top: 70px;
+  left: 10px;
+  width: 200px;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  box-shadow: 0 6px 20px rgba(0,0,0,.2);
+  transition: max-height 0.45s ease, opacity 0.4s ease;
+  z-index: 9999;
+}
+
+/* Khi mở */
+.mini-menu.show {
+  max-height: 300px;
+  opacity: 1;
+}
+
+/* Item trong menu */.mini-item{
+  padding: 12px 18px;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+
+  /* THÊM 3 DÒNG NÀY */
+  text-align: left;          /* chữ sang trái */
+  display: flex;
+  justify-content: flex-start; 
+  align-items: center;
+
+  transition: 0.2s;
+}
+
+
+.mini-item:hover {
+  background: #f0f0f0;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <!-- Nút 3 gạch -->
+<div class="hamburger" id="menuBtn">☰</div>
+
+<!-- Menu trượt -->
+<div class="mini-menu" id="miniMenu">
+<div class="mini-item" onclick="openTab('index.html')">🏠 Trang chủ</div>
+  <div class="mini-item" onclick="openTab('feadback.html')">❤️ Feadback</div>
+  <div class="mini-item" onclick="openTab('lienhe.html')">📞 Liên hệ</div>
+  <div class="mini-item" onclick="openTab('thongbao.html')">🔔 Thông báo</div>
+</div>
+  🛍️ Trang Thuê Quần Áo
+  <div id="userBox">👤 <span id="userText">@user</span></div>
+  <div id="mailIcon">📩<div id="mailBadge">0</div></div>
+</header>
+
+<div id="mailBox">
+  <div id="mailHeader">📩 Hộp thư <span id="closeMail">✖</span></div>
+  <div id="mailList">📭 Chưa có tin nhắn</div>
+</div>
+
+<div class="container">
+  <h2>📋 HƯỚNG DẪN</h2>
+  <div class="guide">
+    • Điền đầy đủ thông tin<br>
+    • Số điện thoại +84<br>
+    • Gmail hợp lệ<br>
+    • CCCD đủ 12 số<br>
+    • Họ tên ít nhất 4 từ<br>
+  </div>
+
+  <h2>✍️ FORM THUÊ ĐỒ</h2>  <form onsubmit="sendOrder(event)">  
+    <input type="text" id="username" placeholder="@username" readonly>  
+    <input type="text" id="fullname" placeholder="Họ và tên" required>  
+    <input type="text" id="phone" placeholder="Số điện thoại +84..." required>  
+    <input type="text" id="address" placeholder="Địa chỉ" required>  
+    <input type="text" id="cccd" placeholder="Số CCCD" required>  
+    <input type="email" id="gmail" placeholder="Gmail" required>  
+    <input type="text" id="outfit" placeholder="Tên bộ đồ" required>  
+    <input type="number" id="rentDays" placeholder="Số ngày thuê" required>  
+    <input type="date" id="returnDate" required>  
+    <textarea id="note" rows="4" placeholder="Nội dung thêm..."></textarea>  
+    <button type="submit">📤 GỬI ĐƠN THUÊ</button>  
+  </form>  
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBhLH36Hz6TI6gmJJTHP1Dztrbdxi9VGGs",
+  authDomain: "shopyennhi-6baae.firebaseapp.com",
+  databaseURL: "https://shopyennhi-6baae-default-rtdb.firebaseio.com",
+  projectId: "shopyennhi-6baae",
+  storageBucket: "shopyennhi-6baae.firebasestorage.app",
+  messagingSenderId: "67718854816",
+  appId: "1:67718854816:web:41ad03300cca3dbe4031c5"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+const auth = getAuth(app);
+const fs = getFirestore(app);
+
+const userBox = document.getElementById("userBox");
+const userText = document.getElementById("userText");
+const usernameInput = document.getElementById("username");
+
+let currentUID = "";
+let currentUsername = "";
+
+onAuthStateChanged(auth, async(user)=>{
+  if(!user){ window.location.href="login.html"; return; }
+
+  currentUID = user.uid;
+  const docSnap = await getDoc(doc(fs,"users",user.uid));
+  if(docSnap.exists()){
+    currentUsername = docSnap.data().username;
+    userText.innerText = "@"+currentUsername;
+    usernameInput.value = "@"+currentUsername;
+  }
+  loadInbox("@"+currentUsername);
+});
+
+userBox.onclick = ()=>window.location.href="profile.html";
+
+function isVietnameseName(str){ return /^[A-Za-zÀ-ỹ\s]+$/u.test(str); }
+function countWords(str){ return str.trim().split(/\s+/).filter(x=>x.length>0).length; }
+function validPhone(p){ return p.startsWith("+84"); }
+function validCCCD(c){ return /^\d{12}$/.test(c); }
+
+window.sendOrder = function(e){
+  e.preventDefault();
+
+  const fullname = document.getElementById("fullname").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const address = document.getElementById("address").value.trim();
+  const cccd = document.getElementById("cccd").value.trim();
+  const gmail = document.getElementById("gmail").value.trim();
+  const outfit = document.getElementById("outfit").value.trim();
+  const rentDays = document.getElementById("rentDays").value.trim();
+  const returnDate = document.getElementById("returnDate").value;
+  const note = document.getElementById("note").value.trim();
+
+  if(!validPhone(phone)) return alert("❌ SĐT phải +84");
+  if(!gmail.includes("@gmail.com")) return alert("❌ Gmail sai");
+  if(!validCCCD(cccd)) return alert("❌ CCCD sai");
+  if(!isVietnameseName(fullname)) return alert("❌ Tên sai");
+  if(countWords(fullname) < 4) return alert("❌ Ít nhất 4 từ");
+
+  push(ref(db,"orders"),{
+    uid: currentUID,
+    username: "@"+currentUsername,
+    fullname, phone, address, cccd, gmail,
+    outfit, rentDays, returnDate, note,
+    status:"chờ duyệt",
+    time:new Date().toLocaleString("vi-VN")
+  }).then(()=>{
+    alert("✅ Đã gửi!");
+    document.querySelector("form").reset();
+    usernameInput.value = "@"+currentUsername;
+  });
+};
+
+// MAIL
+const mailIcon=document.getElementById("mailIcon");
+const mailBox=document.getElementById("mailBox");
+const closeBtn=document.getElementById("closeMail");
+const mailList=document.getElementById("mailList");
+const badge=document.getElementById("mailBadge");
+
+mailIcon.onclick=()=>mailBox.style.display="flex";
+closeBtn.onclick=()=>mailBox.style.display="none";
+
+function loadInbox(username){
+  const inboxRef = ref(db,"adminToUser/"+username.replace("@",""));
+
+  onValue(inboxRef,snap=>{
+    let count=0;
+    mailList.innerHTML="";
+    if(!snap.exists()){
+      mailList.innerHTML="📭 Chưa có tin nhắn";
+      badge.style.display="none";
+      return;
+    }
+
+    snap.forEach(child=>{
+      const m=child.val();
+      const div=document.createElement("div");
+      div.className="mail-item";
+      div.innerHTML=`<b>📨 Từ Admin</b><br>${m.content}<br><small>${m.time}</small>`;
+      mailList.appendChild(div);
+      count++;
+    });
+
+    if(count>0){
+      badge.style.display="block";
+      badge.innerText=count;
+    }
+  });
+}
+
+document.body.style.zoom = "60%";
+
+const menuBtn  = document.getElementById("menuBtn");
+const miniMenu = document.getElementById("miniMenu");
+
+menuBtn.onclick = () => {
+  miniMenu.classList.toggle("show");
+};
+
+function openTab(url){
+  window.location.href = url;
+}
+
+window.openTab = openTab; // BẮT BUỘC nếu dùng type="module"
+
+</script>
+
+</body>
+</html>
