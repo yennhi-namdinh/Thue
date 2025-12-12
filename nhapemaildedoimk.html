@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quên mật khẩu</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  padding: 30px;
+  font-size: 22px; /* TĂNG TOÀN BỘ CHỮ */
+}
+
+.box{
+  max-width: 520px;         /* TO HƠN */
+  margin: auto;
+  background: white;
+  padding: 35px;            /* TO HƠN */
+  border-radius: 20px;      /* BO GÓC ĐẸP HƠN */
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  position: relative;
+}
+
+/* nút back */
+.back-btn{
+  position:absolute;
+  top:18px;
+  left:20px;
+  font-size:26px;      /* TO HƠN */
+  cursor:pointer;
+  color:#7b2fff;
+  font-weight:bold;
+}
+
+h2{
+  text-align:center;
+  margin-top:10px;
+  font-size:32px;       /* TIÊU ĐỀ TO */
+  margin-bottom:10px;
+}
+
+input{
+  width: 100%;
+  padding: 18px;        /* Ô NHẬP TO */
+  font-size: 22px;      /* CHỮ TO */
+  margin: 12px 0 20px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+}
+
+button{
+  width: 100%;
+  padding: 20px;
+  background: #7b2fff;
+  border: none;
+  color: white;
+  font-size: 24px;      /* CHỮ NÚT TO */
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:active{
+  transform: scale(0.97);
+}
+
+#msg{
+  margin-top: 18px;
+  text-align: center;
+  font-size: 20px;      /* THÔNG BÁO TO */
+}
+.email{
+  margin-left: 300px;
+}
+.input-wrap{
+  text-align: left;   /* sang trái */
+  /* text-align: right;  sang phải */
+}
+
+.input-wrap input{
+  width: 93%; /* thu nhỏ  */
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <div class="back-btn" onclick="history.back()">←</div>
+
+  <h2>🔐 Quên mật khẩu</h2>
+
+  <p style="text-align:center;color:#555;margin-bottom:15px;font-size:22px">
+    Nhập email của bạn để nhận liên kết đặt lại mật khẩu.
+    <br>Hãy kiểm tra cả mục <b>Spam / Quảng cáo</b>.
+  </p>
+
+<div class="input-wrap">
+  <input type="email" id="email" placeholder="Nhập email của bạn">
+</div>
+
+  <button id="resetBtn">Gửi email khôi phục</button>
+
+  <div id="msg"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+// Firebase config
+const app = initializeApp({
+  apiKey: "AIzaSyBhLH36Hz6TI6gmJJTHP1Dztrbdxi9VGGs",
+  authDomain: "shopyennhi-6baae.firebaseapp.com"
+});
+
+const auth = getAuth(app);
+
+const emailInput = document.getElementById("email");
+const msg = document.getElementById("msg");
+
+// Khi xóa email → xóa luôn thông báo
+emailInput.addEventListener("input", ()=>{
+  if(emailInput.value.trim() === ""){
+    msg.textContent = "";
+  }
+});
+
+// BTN
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+    const email = emailInput.value.trim();
+
+    if(email === ""){
+        msg.style.color = "red";
+        msg.textContent = "Vui lòng nhập email!";
+        return;
+    }
+
+    sendPasswordResetEmail(auth, email)
+    .then(()=>{
+        msg.style.color = "green";
+        msg.textContent = "✔ Email đã được gửi! Hãy kiểm tra hộp thư của bạn.";
+    })
+    .catch((err)=>{
+        msg.style.color = "red";
+        msg.textContent = "⚠ Lỗi: " + err.message;
+    });
+});
+document.body.style.zoom = "60%";
+</script>
+
+</body>
+</html>

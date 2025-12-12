@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đặt lại mật khẩu</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f2f2f2;
+  padding:20px;
+  display:flex;
+  justify-content:center;
+}
+.box{
+  background:white;
+  width:100%;
+  max-width:380px;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.15);
+}
+h2{
+  text-align:center;
+  margin-bottom:10px;
+}
+p{
+  text-align:center;
+  color:#666;
+  font-size:14px;
+  margin-bottom:20px;
+}
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:14px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:15px;
+}
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#7b2fff;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+#msg{
+  margin-top:10px;
+  text-align:center;
+  font-size:14px;
+}
+</style>
+</head>
+
+<body>
+<div class="box">
+
+  <h2>🔐 Đặt lại mật khẩu</h2>
+  <p>Nhập mật khẩu mới của bạn để hoàn tất việc khôi phục.</p>
+
+  <input type="password" id="pass1" placeholder="Mật khẩu mới">
+  <input type="password" id="pass2" placeholder="Nhập lại mật khẩu">
+
+  <button id="resetBtn">Đổi mật khẩu</button>
+
+  <div id="msg"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { 
+  getAuth, 
+  confirmPasswordReset 
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+// Firebase
+const app = initializeApp({
+  apiKey: "AIzaSyBhLH36Hz6TI6gmJJTHP1Dztrbdxi9VGGs",
+  authDomain: "shopyennhi-6baae.firebaseapp.com"
+});
+
+const auth = getAuth(app);
+
+// Lấy mã oobCode từ URL Firebase gửi
+const urlParams = new URLSearchParams(window.location.search);
+const oobCode = urlParams.get("oobCode");
+
+const msg = document.getElementById("msg");
+const btn = document.getElementById("resetBtn");
+
+btn.onclick = async () => {
+  const pass1 = document.getElementById("pass1").value;
+  const pass2 = document.getElementById("pass2").value;
+
+  msg.style.color = "red";
+
+  if (!pass1 || !pass2) {
+    msg.textContent = "Vui lòng nhập đủ mật khẩu!";
+    return;
+  }
+
+  if (pass1.length < 6) {
+    msg.textContent = "Mật khẩu phải từ 6 ký tự!";
+    return;
+  }
+
+  if (pass1 !== pass2) {
+    msg.textContent = "Mật khẩu không trùng nhau!";
+    return;
+  }
+
+  // Gửi về Firebase cập nhật mật khẩu
+  try {
+    await confirmPasswordReset(auth, oobCode, pass1);
+
+    msg.style.color = "green";
+    msg.textContent = "✔ Đổi mật khẩu thành công! Đang chuyển trang...";
+
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 1200);
+
+  } catch (error) {
+    msg.textContent = "Lỗi: " + error.message;
+  }
+};
+</script>
+
+</body>
+</html>
