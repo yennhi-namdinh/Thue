@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Trạng Thái Thuê Quần Áo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f6f7f8;color:#222}
+
+/* HEADER */
+header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  background:#111;
+  color:#fff
+}
+.back{font-size:18px;cursor:pointer}
+.marquee{overflow:hidden;white-space:nowrap;flex:1}
+.marquee span{
+  display:inline-block;
+  padding-left:100%;
+  animation:mar 8s linear infinite;
+  font-weight:bold
+}
+@keyframes mar{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-100%)}
+}
+
+/* CONTENT */
+.container{
+  max-width:600px;
+  margin:20px auto;
+  padding:15px
+}
+h2{text-align:center;margin-bottom:8px}
+.guide{text-align:center;font-size:14px;color:#666;margin-bottom:15px}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:15px;
+  box-shadow:0 2px 8px rgba(0,0,0,.08);
+  display:flex;
+  gap:12px;
+  cursor:pointer
+}
+.card img{
+  width:90px;
+  height:120px;
+  border-radius:8px;
+  object-fit:cover
+}
+.info{flex:1;font-size:14px}
+.info p{margin:4px 0}
+.status{font-weight:bold;margin-top:6px}
+.pending{color:orange}
+.approved{color:green}
+.rejected{color:red}
+.time{font-size:12px;color:#777}
+
+/* POPUP */
+.popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:999
+}
+.popup-box{
+  background:#fff;
+  width:92%;
+  max-width:420px;
+  border-radius:14px;
+  padding:15px
+}
+.popup-box img{
+  width:100%;
+  border-radius:10px;
+  margin-bottom:10px
+}
+.popup-box p{
+  font-size:14px;
+  margin:6px 0
+}
+.popup-actions{
+  margin-top:12px;
+  display:flex;
+  gap:10px
+}
+.popup-actions button{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:14px
+}
+.cancel{background:#dc3545;color:#fff}
+.close{background:#aaa;color:#fff;border-radius:8px;margin-top:10px;width:100%}
+.reason-btn{
+  margin-top:6px;
+  padding:4px 8px;
+  font-size:12px;
+  border-radius:6px;
+  background:#e5e7eb;
+  color:#111;
+  border:none;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="back" onclick="history.back()">←</div>
+  <div class="marquee">
+    <span> TRANG THEO DÕI TRẠNG THÁI THUÊ ĐỒ • TRANG THEO DÕI TRẠNG THÁI THUÊ ĐỒ • </span>
+  </div>
+</header>
+
+<div class="container">
+  <h2>TRẠNG THÁI THUÊ QUẦN ÁO</h2>
+  <div class="guide">Bấm vào đơn để xem chi tiết</div>
+  <div id="list"></div>
+</div>
+
+<!-- POPUP -->
+<div class="popup" id="popup">
+  <div class="popup-box">
+    <img id="pImg">
+    <p><b>Họ tên:</b> <span id="pName"></span></p>
+    <p><b>SĐT:</b> <span id="pPhone"></span></p>
+    <p><b>Gmail:</b> <span id="pGmail"></span></p>
+    <p><b>Địa chỉ:</b> <span id="pAddress"></span></p>
+    <p><b>Size:</b> <span id="pSize"></span></p>
+    <p><b>Số lượng:</b> <span id="pQty"></span></p>
+    <p><b>Ghi chú:</b> <span id="pNote"></span></p>
+    <p><b>Thời gian:</b> <span id="pTime"></span></p>
+    <p class="status" id="pStatus"></p>
+
+    <div class="popup-actions" id="cancelBox"></div>
+    <button class="close" onclick="closePopup()">Đóng</button>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  doc,
+  getDoc,
+  deleteDoc,
+  orderBy
+} from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+
+/* DOM */
+const list = document.getElementById("list");
+const popup = document.getElementById("popup");
+const pImg = document.getElementById("pImg");
+const pName = document.getElementById("pName");
+const pPhone = document.getElementById("pPhone");
+const pGmail = document.getElementById("pGmail");
+const pAddress = document.getElementById("pAddress");
+const pSize = document.getElementById("pSize");
+const pQty = document.getElementById("pQty");
+const pNote = document.getElementById("pNote");
+const pTime = document.getElementById("pTime");
+const pStatus = document.getElementById("pStatus");
+const cancelBox = document.getElementById("cancelBox");
+
+let currentUser = null;
+let currentOrderId = null;
+
+/* AUTH */
+onAuthStateChanged(auth,user=>{
+  if(!user){
+    location.href="index.html";
+    return;
+  }
+  currentUser = user;
+  loadOrders();
+});
+
+/* LOAD ORDERS */
+function loadOrders(){
+  const q = query(
+  collection(db,"orders"),
+  where("uid","==",currentUser.uid),
+  orderBy("createdAt", "desc")
+);
+  
+
+  onSnapshot(q,snap=>{
+    list.innerHTML = "";
+
+    if(snap.empty){
+      list.innerHTML =
+        "<p style='text-align:center;color:#777'>Bạn chưa có đơn thuê nào</p>";
+      return;
+    }
+
+snap.forEach(docu=>{
+  const o = docu.data();
+
+  // FIX STATUS
+  let st = "pending";
+  if(o.status === "approved") st = "approved";
+  if(o.status === "rejected") st = "rejected";
+
+  const time = o.createdAt?.toDate
+    ? o.createdAt.toDate().toLocaleString("vi-VN")
+    : "Không rõ";
+
+  // CHỈ HIỆN NÚT LÝ DO KHI BỊ TỪ CHỐI
+  const reasonBtn =
+    st === "rejected"
+      ? `<button class="reason-btn"
+           onclick="event.stopPropagation();showReason('${docu.id}')">
+           Lý do
+         </button>`
+      : "";
+
+  list.innerHTML += `
+    <div class="card" data-id="${docu.id}">
+      <img src="${o.img || ""}">
+      ${reasonBtn}
+      <div class="info">
+        <p><b>${o.name}</b></p>
+        <p>Size ${o.size} • SL ${o.qty}</p>
+        <p class="time">🕒 ${time}</p>
+        <div class="status ${st}">
+          ${
+            st==="pending"
+              ? "Chờ duyệt"
+              : st==="approved"
+              ? "Đã duyệt"
+              : "Từ chối"
+          }
+        </div>
+      </div>
+    </div>
+  `;
+});
+    
+
+    document.querySelectorAll(".card").forEach(card=>{
+      card.onclick = ()=>openPopup(card.dataset.id);
+    });
+  });
+}
+
+/* POPUP */
+async function openPopup(id){
+  currentOrderId = id;
+  const snap = await getDoc(doc(db,"orders",id));
+  const d = snap.data();
+
+  pImg.src = d.img || "";
+  pName.innerText = d.name;
+  pPhone.innerText = d.phone;
+  pGmail.innerText = d.gmail;
+  pAddress.innerText = d.address;
+  pSize.innerText = d.size;
+  pQty.innerText = d.qty;
+  pNote.innerText = d.note || "Không có";
+  pTime.innerText = d.createdAt?.toDate
+    ? d.createdAt.toDate().toLocaleString("vi-VN")
+    : "Không rõ";
+
+const st = d.status === "approved"
+  ? "approved"
+  : d.status === "rejected"
+  ? "rejected"
+  : "pending";
+  pStatus.className = "status " + st;
+pStatus.innerText =
+  "Trạng thái: " +
+  (st==="pending"
+    ? "Chờ duyệt"
+    : st==="approved"
+    ? "Đã duyệt"
+    : "Từ chối");
+  
+
+  cancelBox.innerHTML =
+    st==="pending"
+      ? `<button class="cancel" onclick="cancelOrder()">Thu hồi</button>`
+      : "";
+
+  popup.style.display="flex";
+}
+
+/* CLOSE */
+window.closePopup = ()=>{
+  popup.style.display="none";
+};
+
+/* CANCEL */
+window.cancelOrder = async ()=>{
+  if(!confirm("Bạn chắc chắn muốn thu hồi đơn này?")) return;
+  await deleteDoc(doc(db,"orders",currentOrderId));
+  alert("Đã thu hồi đơn thuê");
+  popup.style.display="none";
+};
+const reasonPopup = document.getElementById("reasonPopup");
+const reasonText = document.getElementById("reasonText");
+
+window.showReason = async (id)=>{
+  const snap = await getDoc(doc(db,"orders",id));
+  const d = snap.data();
+  reasonText.innerText = d.reason || "Admin chưa gửi lý do";
+  reasonPopup.style.display="flex";
+};
+
+window.closeReason = ()=>{
+  reasonPopup.style.display="none";
+};
+</script>
+<div class="popup" id="reasonPopup">
+  <div class="popup-box">
+    <h3>Lý do từ admin</h3>
+    <p id="reasonText" style="margin:10px 0;color:#333"></p>
+    <button class="close" onclick="closeReason()">Đóng</button>
+  </div>
+</div>
+</body>
+</html>

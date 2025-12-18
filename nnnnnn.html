@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Thuê Quần Áo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}
+body{background:#f6f7f8;color:#222}
+
+/* HEADER */
+header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(0,0,0,.08)
+}
+.back{
+  font-size:18px;
+  cursor:pointer
+}
+.username{
+  margin-left:auto;
+  font-weight:bold;
+  color:#555
+}
+
+/* MARQUEE */
+.marquee{
+  overflow:hidden;
+  white-space:nowrap;
+  background:#111;
+  color:#fff;
+  padding:6px 0
+}
+.marquee span{
+  display:inline-block;
+  padding-left:100%;
+  animation:mar 10s linear infinite
+}
+@keyframes mar{
+  0%{transform:translateX(0)}
+  100%{transform:translateX(-100%)}
+}
+
+/* CONTENT */
+.container{
+  max-width:500px;
+  margin:20px auto;
+  background:#fff;
+  padding:15px;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(0,0,0,.08)
+}
+h2{text-align:center;margin-bottom:10px}
+.guide{
+  font-size:14px;
+  color:#666;
+  margin-bottom:12px
+}
+
+/* BANNER */
+.banner{
+  width:100%;
+  height:280px;
+  border-radius:10px;
+  background:#eee center/cover no-repeat;
+  margin-bottom:15px
+}
+
+/* FORM */
+label{font-size:13px;margin-top:10px;display:block}
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+  margin-top:4px;
+  font-size:14px
+}
+textarea{resize:none;height:80px}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#ff4d6d;
+  color:#fff;
+  font-size:16px;
+  cursor:pointer
+}
+
+/* THANK TEXT */
+.thanks{
+  display:none;
+  margin-top:15px;
+  overflow:hidden;
+  white-space:nowrap;
+  background:#222;
+  color:#fff;
+  padding:6px 0
+}
+.thanks span{
+  display:inline-block;
+  padding-left:100%;
+  animation:mar 10s linear infinite
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="back" onclick="history.back()">←</div>
+  <div class="username" id="username">@...</div>
+</header>
+
+<div class="marquee">
+  <span> thuê quần áo • thuê quần áo • thuê quần áo • thuê quần áo </span>
+</div>
+
+<div class="container">
+  <h2>ĐẶT THUÊ QUẦN ÁO</h2>
+  <div class="guide">
+    Vui lòng nhập đầy đủ thông tin (tối thiểu 10 ký tự mỗi mục)
+  </div>
+
+  <div class="banner" id="banner"></div><script>
+const rentItem = JSON.parse(localStorage.getItem("RENT_ITEM"));
+
+if(!rentItem){
+  alert("Không có sản phẩm thuê!");
+  location.href = "index.html";
+}
+
+const banner = document.getElementById("banner");
+banner.style.backgroundImage = `url('${rentItem.img}')`;
+</script>
+
+
+  <label>Số lượng (tối đa 2)</label>
+  <input type="number" id="qty" min="1" max="2">
+
+  <label>Họ và tên</label>
+  <input id="fullname">
+
+  <label>Số điện thoại</label>
+  <input id="phone">
+
+  <label>Gmail</label>
+  <input id="gmail">
+
+  <label>Địa chỉ</label>
+  <input id="address">
+
+  <label>Size</label>
+  <select id="size">
+    <option value="">-- Chọn size --</option>
+    <option>L</option>
+    <option>M</option>
+    <option>X</option>
+  </select>
+
+  <label>Ghi chú cho shop (không bắt buộc)</label>
+  <textarea id="note"></textarea>
+
+  <button onclick="order()">Đặt thuê đồ</button>
+
+  <div class="thanks" id="thanks">
+    <span> Cảm ơn bạn đã dùng bên mình ❤️ Cảm ơn bạn đã dùng bên mình ❤️ </span>
+  </div>
+</div>
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged } from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import {
+  addDoc,
+  collection,
+  serverTimestamp
+} from
+"https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+
+
+/* AUTH CHECK */
+let currentUser = null;
+onAuthStateChanged(auth, user=>{
+  if(!user){
+    location.href="index.html";
+    return;
+  }
+  currentUser = user;
+  document.getElementById("username").innerText =
+    "@"+(user.displayName || user.email.split("@")[0]);
+});
+
+/* GET IMAGE FROM INDEX */
+const img = new URLSearchParams(location.search).get("img");
+if(img){
+  document.getElementById("banner").style.backgroundImage =
+    `url('${img}')`;
+}
+
+/* HIDE THANKS WHEN EDIT */
+document.querySelectorAll("input,textarea,select").forEach(el=>{
+  el.addEventListener("input",()=>{
+    document.getElementById("thanks").style.display="none";
+  });
+});
+
+/* ORDER */window.order = async function(){
+
+  const qtyEl      = document.getElementById("qty");
+  const fullnameEl = document.getElementById("fullname");
+  const phoneEl    = document.getElementById("phone");
+  const gmailEl    = document.getElementById("gmail");
+  const addressEl  = document.getElementById("address");
+  const sizeEl     = document.getElementById("size");
+
+  if(!qtyEl.value || qtyEl.value < 1 || qtyEl.value > 2){
+    alert("Số lượng tối đa là 2");
+    return;
+  }
+
+  if(!fullnameEl.value || fullnameEl.value.trim().length < 10){
+    alert("Họ và tên phải tối thiểu 10 ký tự");
+    return;
+  }
+
+  if(!phoneEl.value || phoneEl.value.trim().length < 10){
+    alert("Số điện thoại không hợp lệ");
+    return;
+  }
+
+  if(!gmailEl.value || !gmailEl.value.includes("@")){
+    alert("Gmail không hợp lệ");
+    return;
+  }
+
+  if(!addressEl.value || addressEl.value.trim().length < 10){
+    alert("Địa chỉ phải tối thiểu 10 ký tự");
+    return;
+  }
+
+  if(!sizeEl.value){
+    alert("Vui lòng chọn size");
+    return;
+  }
+
+  await addDoc(collection(db,"orders"),{
+    uid: currentUser.uid,
+    username: document.getElementById("username").innerText,
+    qty: qtyEl.value,
+    name: fullnameEl.value,
+    phone: phoneEl.value,
+    gmail: gmailEl.value,
+    address: addressEl.value,
+    size: sizeEl.value,
+    note: note.value,
+    img: rentItem?.img || "",
+    createdAt: serverTimestamp()
+  });
+
+  document.getElementById("thanks").style.display = "block";
+  alert("Đặt thuê thành công!");
+}
+document.body.style.zoom = "60%";
+</script>
+
+</body>
+</html>

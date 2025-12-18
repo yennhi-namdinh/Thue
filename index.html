@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Yennhi — Shop Thuê Quần Áo</title>
+
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+
+/* HEADER */
+header{
+  position:fixed;top:0;left:0;right:0;height:64px;background:linear-gradient(90deg,#06B6D4,#9333EA);
+  display:flex;align-items:center;justify-content:space-between;padding:8px 16px;color:#fff;z-index:1000;
+  background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");
+}
+
+#searchBox{
+  padding:8px 14px;border-radius:12px;border:1px solid #ddd;outline:none;min-width:200px;background:#fff;
+}
+
+/* NEW — SHOP INFO */
+.shop-info{
+  background:#fff;
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+  margin-bottom:18px;
+  text-align:center;
+}
+.shop-info h2{
+  color:#06B6D4;
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.shop-info p{
+  font-size:15px;color:#444;
+}
+
+/* GALLERY */
+main{max-width:1100px;margin:90px auto;padding:16px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.product-box{background:#fff;border-radius:12px;border:1px solid #eee;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.04)}
+.product-box img{width:100%;height:220px;object-fit:cover;cursor:pointer}
+.product-bottom{padding:12px;display:flex;justify-content:space-between;align-items:center}
+.product-actions{display:flex;gap:8px}
+.view-small{padding:6px 10px;border-radius:8px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.icon-cart{
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:#10b981;border:0;cursor:pointer;font-size:18px;color:#fff;
+}
+/* =========================
+      CART POPUP
+========================= */
+.cart-modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2000;
+}
+.cart-modal-overlay.open{
+    display: flex;
+}
+
+.cart-modal{
+    width: 90%;
+    max-width: 380px;
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    animation: popupFade .25s ease;
+}
+
+@keyframes popupFade {
+    from { transform: translateY(20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Title */
+.cart-title{
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Close button */
+.closeX{
+    background: none;
+    border: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #444;
+    cursor: pointer;
+    margin-left: auto;
+}
+
+/* Product row */
+.cart-row{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-row img{
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.cart-item-name{
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.cart-item-price{
+    margin-left: auto;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.cart-remove{
+    font-size: 18px;
+    font-weight: bold;
+    color: #e11d48;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+
+/* PRODUCT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:1500}
+.modal-overlay.open{display:flex}
+.modal{
+  width:90%;max-width:700px;background:#fff;padding:16px;
+  border-radius:14px;display:flex;gap:16px;animation:zoom .2s ease;
+}
+@keyframes zoom{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-left img{width:100%;height:350px;border-radius:12px;object-fit:cover}
+.modal-right{display:flex;flex-direction:column;flex:1}
+#rentBtnModal{margin-top:110px;padding:10px;background:#0ea5e9;color:#fff;border-radius:8px;border:0;cursor:pointer}
+.modal-right {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.modal-buttons {
+  margin-top: auto;      /* nhóm nút đẩy xuống đáy */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#modalDesc {
+  line-height: 1.3;
+  word-break: break-word;
+}
+
+.modal-right h3,
+.modal-right p {
+  margin: 0;              /* Xóa toàn bộ khoảng cách mặc định */
+  padding: 0;
+}
+
+#modalName {
+  margin-bottom: 4px;     /* Khoảng cách rất nhỏ giữa tên và giá */
+}
+
+#modalPrice {
+  margin-bottom: 4px;     /* Khoảng cách nhỏ giữa giá và mô tả */
+}
+
+#modalDesc {
+  line-height: 1.25;      /* Chữ gọn lại */
+}
+/* Animation bay vào giỏ */
+.fly-img{
+  position:fixed;z-index:3000;width:80px;height:80px;object-fit:cover;
+  border-radius:12px;pointer-events:none;
+  transition:all .75s cubic-bezier(.28,.75,.32,.98);
+}
+.custom-box{
+  width:90%;
+  max-width:900px;
+  margin:20px auto;
+  background:#fff;
+  border:2px dashed #9333EA;
+  border-radius:10px;
+  padding:14px;
+  font-size:16px;
+  min-height:80px;
+  outline:none;
+}
+.custom-box:focus{
+  border-color:#10B981;
+}
+
+
+.left-tag-box{
+  width: 350px;           /* Độ dài ngang */
+  height: 60px;           /* Độ cao */
+  background: #d1d1d1;    /* Màu xám giống mẫu */
+  border-radius: 40px;    /* Bo cong mạnh 2 đầu */
+  display:flex;
+  align-items:center;
+  padding-left:20px;
+  font-size:20px;         /* Cỡ chữ */
+  margin: 10px 0;
+  cursor:text;
+}
+
+
+.grid-text-box{
+  background:#d1d1d1;
+  border-radius:30px;
+  height:70px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  padding-left:20px;
+  font-size:20px;
+  grid-column: span 2;     /* Để nó dài bằng 2 ô */
+  cursor:text;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: 0.8s ease;
+}
+
+.reveal.show {
+    opacity: 1;
+    transform: translateY(0px);
+}
+    background: #0d001b; /* màu tối đẹp cho hạt tím */
+    background: #0d001b; /* màu tối đẹp cho hạt tím */
+.animate {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.animate.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+.mini-menu {
+  width: 200px;
+  background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");
+  border-radius: 10px;
+  overflow: hidden; /* không xóa */
+  max-height: 0;
+  transition: max-height 0.4s ease;
+  position: absolute;
+  top: 80px; 
+  left: 10px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.mini-menu.show {
+  max-height: 300px; /* cao đủ chứa chữ */
+}
+
+.mini-item {
+  padding: 12px 16px;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.mini-item:hover {
+  background: #eee;
+}
+.hamburger {
+  font-size: 30px;
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+}
+
+.menu-item{
+  padding:14px 18px;
+  font-size:16px;
+  font-weight:600;
+  color:#333;
+  cursor:pointer;
+  border-bottom:1px solid #eee;
+}
+
+.menu-item:hover{
+  background:#f4e8ff;
+  color:#7b2fff;
+
+</style>
+</head>
+<script>
+document.querySelectorAll("img").forEach(img => {
+  // Nếu có ảnh thật trong data-src thì dùng lazy real load
+  if (img.dataset.src) {
+    const real = new Image();
+    real.src = img.dataset.src;
+    real.onload = () => img.src = img.dataset.src;
+  }
+});
+</script>
+<body>
+<header>
+<!-- USER INFO -->
+<div class="user-box" id="userBox">
+    <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon">
+    <span id="usernameDisplay">@guest</span>
+</div>
+
+<!-- MENU TRƯỢT XUỐNG -->
+<div class="user-menu" id="userMenu">
+    <div class="user-item" onclick="openTab('profile.html')">👤 Cá nhân</div>
+    <div class="user-item" onclick="logout()">🚪 Đăng xuất</div>
+</div>
+  <!-- Nút ba gạch -->
+<div class="hamburger" id="miniMenuBtn">☰</div>
+
+
+<!-- Khung trượt xuống -->
+<div class="mini-menu" id="miniMenu">
+  <div class="mini-item" onclick="openTab('index.html')">🏠 Trang chủ</div>
+  <div class="mini-item" onclick="openTab('feadback.html')">❤️ feadback</div>
+  <div class="mini-item" onclick="openTab('lienhe.html')">📞 Liên hệ</div>
+</div>
+
+</div>
+  <h2></h2>
+  <div style="display:flex;gap:10px;align-items:center">
+    <input id="searchBox" type="text" placeholder="Tìm...">
+    <button id="openCart" class="view-small">🛒</button>
+  </div>
+  <!-- Tối ưu tải ảnh toàn web -->
+<meta http-equiv="Cache-Control" content="max-age=2592000, public">
+
+</header>
+
+<main>
+
+  <!-- ⭐ SHOP INFO -->
+  <div class="shop-info">
+    <h2>🌸 Shop Thuê Đồ Yennhi 🌸</h2>
+    <p>Mẫu đẹp — Nhiều size — Giá rẻ — Giao nhanh — Uy tín lâu năm!</p>
+  </div>
+  <div class="custom-box">
+  <p>
+  Bấm vào đây để đánh giá: 
+  <a href="danhgia.html" style="color:#ff4a6e; font-weight:bold;margin-top:300px;text-decoration:none;">
+    bấm vào đây
+  </a>
+</p>
+ <p>
+  Bấm vào đây để luu y: 
+  <a href="luuy.html" style="color:#ff4a6e; font-weight:bold;margin-top:300px;text-decoration:none;">
+    bấm vào đây
+  </a>
+</p>
+ <p>
+  Bấm vào đây để theo dõi quần áo :
+  <a href="trangtahis.html" style="color:#ff4a6e; font-weight:bold;margin-top:300px;text-decoration:none;">
+    bấm vào đây
+  </a>
+</p>
+
+   </div>
+   <div id="slider-box"></div>
+<script src="slider-box.js"></script>
+<div class="left-tag-box" contenteditable="flase">
+  sản phầm mới của shop nhi
+</div>
+
+  <div class="gallery" id="productList"></div>
+</main>
+
+<style>/* --- CSS BẠN ĐÃ GỬI (KHÔNG ĐỤNG CHẠM) --- *//* Khung @username */
+.user-box{
+    position:absolute;
+    top:50%;
+    left:110px;
+    transform:translateY(-50%);
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");
+    padding:6px 14px;
+    border-radius:14px;
+    border:1px solid #ccc;
+
+    cursor:pointer;
+    z-index:1000;
+}
+
+.user-icon{
+    width:32px;
+    height:32px;
+    border-radius:50%;
+}
+
+#usernameDisplay{
+    font-size:15px;
+    font-weight:600;
+    color:#333;
+}
+
+/* MENU DROPDOWN */
+.user-menu{
+    position:absolute;
+    top:70px;
+    left:110px;
+    width:160px;
+    background:white;
+    border-radius:10px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+    animation:fadeDown .25s ease;
+    z-index:999;
+}
+
+.user-item{
+    padding:12px;
+    font-size:15px;
+    background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");
+    cursor:pointer;
+    border-bottom:1px solid #eee;
+}
+.user-item:last-child{
+    border-bottom:none;
+}
+.user-item:hover{
+    background:#f5f5f5;
+}
+
+@keyframes fadeDown{
+    from{opacity:0; transform:translateY(-10px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+</style>
+
+
+<!-- CART -->
+<div class="cart-modal-overlay" id="cartModal">
+  <div class="cart-modal">
+
+    <!-- Header -->
+    <div style="display: flex; align-items:center; margin-bottom: 12px;">
+      <span class="cart-title">Giỏ hàng</span>
+      <button class="closeX" id="closeCart">✖</button>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div id="cartItems"></div>
+
+    <!-- Tổng tiền -->
+    <p id="totalPrice" style="font-weight:700; margin-top:10px; font-size: 16px;">
+      Tổng: 0đ
+    </p>
+
+  </div>
+</div>
+
+
+
+<!-- POPUP -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-left">
+      <img id="modalImg" src="">
+    </div>
+    <div class="modal-right">
+      <h3 id="modalName"></h3>
+      <p id="modalPrice" style="color:#0ea5e9;font-weight:700"></p>
+      <p id="modalDesc"></p>
+      <button type="button" id="rentBtnModal">Thuê ngay 📞</button>
+      <button class="closeX" id="closeModal" style="margin-top:100px">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes zoomIn {
+  from {transform: scale(0.8); opacity: 0;}
+  to {transform: scale(1); opacity: 1;}
+}
+</style>
+<script type="module">
+// 👉 BẤM LÀ ĐI NGAY
+document.getElementById("rentBtnModal").onclick = () => {
+  if(!current){
+    alert("Lỗi sản phẩm");
+    return;
+  }
+
+  localStorage.setItem("RENT_ITEM", JSON.stringify(current));
+  location.href = "nnnnnn.html";
+};
+
+</script>
+
+<script>
+  let products = [];   // 🔥 dữ liệu sẽ lấy từ Firebase
+        
+
+let cart = JSON.parse(localStorage.getItem("CART_DATA")||"[]");
+let current = null;
+
+function saveCart(){localStorage.setItem("CART_DATA",JSON.stringify(cart))}
+function money(n){return n.toLocaleString("vi-VN")+"đ"}
+
+const list = document.getElementById("productList");
+
+
+/* ANIMATION BAY VÀO GIỎ */
+function flyToCart(img){
+  const fly = img.cloneNode();
+  const rect = img.getBoundingClientRect();
+  fly.classList.add("fly-img");
+  fly.style.left = rect.left+"px";
+  fly.style.top = rect.top+"px";
+  document.body.appendChild(fly);
+
+  const cartBtn = document.getElementById("openCart").getBoundingClientRect();
+  setTimeout(()=>{
+    fly.style.left = cartBtn.left+"px";
+    fly.style.top = cartBtn.top+"px";
+    fly.style.opacity = 0;
+    fly.style.transform = "scale(.2)";
+  },10);
+
+  setTimeout(()=>fly.remove(),800);
+}
+
+
+/* MỞ POPUP */
+const modal=document.getElementById("productModal");
+const modalImg=document.getElementById("modalImg");
+const modalName=document.getElementById("modalName");
+const modalDesc=document.getElementById("modalDesc");
+const modalPrice=document.getElementById("modalPrice");
+list.onclick = e => {
+  const i = e.target.dataset.i;
+  if(i === undefined) return;
+
+  const p = products[i];
+  current = p; // ✅ ĐÚNG
+
+  if(e.target.classList.contains("view-small")){
+    modalImg.src = p.img;
+    modalName.textContent = p.name;
+    modalDesc.textContent = p.desc;
+    modalPrice.textContent = money(p.price);
+    modal.classList.add("open");
+  }
+
+  if(e.target.classList.contains("addcart")){
+    addToCart(i);
+    flyToCart(
+      e.target.closest(".product-box").querySelector("img")
+    );
+  }
+};
+
+
+document.getElementById("closeModal").onclick=()=>modal.classList.remove("open");
+
+
+/* GIỎ HÀNG */
+const cartModal=document.getElementById("cartModal");
+document.getElementById("openCart").onclick=()=>{renderCart();cartModal.classList.add("open")}
+document.getElementById("closeCart").onclick=()=>cartModal.classList.remove("open")
+
+function addToCart(i){
+  const item=products[i];
+  if(cart.find(x=>x.id==item.id)){alert("Đã có trong giỏ!");return;}
+  cart.push({...item});
+  saveCart();
+  renderCart();
+}
+
+function removeItem(i){cart.splice(i,1);saveCart();renderCart()}
+
+const cartItems=document.getElementById("cartItems");
+const totalEl=document.getElementById("totalPrice");
+
+function renderCart(){
+  if(cart.length===0){
+    cartItems.innerHTML="<p>Giỏ trống</p>";
+    totalEl.textContent="Tổng: 0đ";
+    return;
+  }
+  cartItems.innerHTML = cart.map((c,i)=>`
+    <div class="cart-row">
+      <img src="${c.img}">
+      <span>${c.name}</span>
+      <b style="margin-left:auto">${money(c.price)}</b>
+      <span class="cart-remove" onclick="removeItem(${i})">✖</span>
+    </div>
+  `).join("");
+  totalEl.textContent="Tổng: "+money(cart.reduce((s,i)=>s+i.price,0));
+}
+renderCart();
+
+/* SEARCH */
+document.getElementById("searchBox").oninput=e=>{
+  const q=e.target.value.toLowerCase();
+  document.querySelectorAll(".product-box").forEach(box=>{
+    const name=box.querySelector("b").textContent.toLowerCase();
+    box.style.display=name.includes(q)?"block":"none";
+  });
+};
+
+document.body.style.zoom = "60%"; // phóng to 20%
+const textBoxes = [
+  { pos: 10, text: "sản phẩm của shop" }
+
+];
+
+function renderProducts(){
+  let html = "";
+
+  products.forEach((p, i) => {
+
+    // Render sản phẩm
+    html += `
+      <div class="product-box">
+        <img src="${p.img}" data-i="${i}">
+        <div class="product-bottom">
+          <div><b>${p.name}</b><br><small>${money(p.price)}</small></div>
+          <div class="product-actions">
+            <button class="view-small" data-i="${i}">Xem</button>
+            <button class="icon-cart addcart" data-i="${i}">🛒</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ⭐ CHÈN KHUNG CHỮ
+    textBoxes.forEach(tb => {
+      if(tb.pos === i){
+        html += `
+          <div class="grid-text-box" contenteditable="true">
+            ${tb.text}
+          </div>
+        `;
+      }
+    });
+
+  });
+
+  list.innerHTML = html;
+}
+
+renderProducts(); 
+
+
+
+const miniMenu = document.getElementById("miniMenu");
+const miniBtn = document.getElementById("miniMenuBtn");
+
+miniBtn.onclick = () => {
+  miniMenu.classList.toggle("show");
+};
+
+// Hàm mở tab
+function openTab(url){
+  window.location.href = url; // hoặc window.open(url)
+}
+</script><script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+
+/* 🔥 FIREBASE CONFIG */
+const firebaseConfig = {
+  apiKey: "AIzaSyBhLH36Hz6TI6gmJJTHP1Dztrbdxi9VGGs",
+  authDomain: "shopyennhi-6baae.firebaseapp.com",
+  projectId: "shopyennhi-6baae"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+/* =============================
+   LOAD PRODUCTS TỪ FIRESTORE
+============================= */
+async function loadProducts(){
+  const snap = await getDocs(collection(db, "products"));
+  products = [];
+
+  snap.forEach(doc=>{
+    products.push({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+
+  renderProducts(); // 🔥 HÀM CŨ CỦA BẠN – GIỮ NGUYÊN
+}
+
+loadProducts();
+
+/* =============================
+   AUTH (GIỮ NGUYÊN LOGIC CŨ)
+============================= */
+let isLoggedIn = false;
+
+onAuthStateChanged(auth, (user)=>{
+  isLoggedIn = !!user;
+
+  if(user){
+    usernameDisplay.textContent = "@"+user.email.split("@")[0];
+    userMenu.innerHTML = `
+      <div class="user-item" onclick="location.href='profile.html'">Cá nhân</div>
+      <div class="user-item" onclick="logoutNow()">Đăng xuất</div>
+    `;
+  }else{
+    usernameDisplay.textContent = "@guest";
+    userMenu.innerHTML = `
+      <div class="user-item" onclick="location.href='register.html'">Đăng ký</div>
+      <div class="user-item" onclick="location.href='login.html'">Đăng nhập</div>
+    `;
+  }
+});
+
+window.logoutNow = ()=>{
+  signOut(auth).then(()=>location.reload());
+};
+
+
+
+// =============================
+// USER MENU
+// =============================
+const userBox = document.getElementById("userBox");
+const userMenu = document.getElementById("userMenu");
+const usernameDisplay = document.getElementById("usernameDisplay");
+
+// Bấm icon → mở menu
+userBox.addEventListener("click", (e)=>{
+    e.stopPropagation();
+    userMenu.style.display = (userMenu.style.display === "flex") ? "none" : "flex";
+});
+
+// Bấm ngoài → đóng menu
+document.addEventListener("click", ()=>{
+    userMenu.style.display = "none";
+});
+
+// =============================
+// POPUP YÊU CẦU ĐĂNG NHẬP
+// =============================
+const loginPopup = document.getElementById("loginPopup");
+const closeLoginPopup = document.getElementById("closeLoginPopup");
+const agreeLogin = document.getElementById("agreeLogin");
+
+// Nút thuê ngay trong modal sản phẩm
+const rentBtnModal = document.getElementById("rentBtnModal");
+
+// Khi bấm thuê ngay
+rentBtnModal.addEventListener("click", (e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+
+    if(!isLoggedIn){
+        loginPopup.style.display = "flex";   // hiện popup đăng nhập
+    }else{
+        window.location.href = "nnnnnn.html";    // đã đăng nhập → đi thuê
+    }
+});
+
+// Nút X → đóng popup
+closeLoginPopup.addEventListener("click", ()=>{
+    loginPopup.style.display = "none";
+});
+
+// Nút Đồng ý → sang login
+agreeLogin.addEventListener("click", ()=>{
+    window.location.href = "login.html";
+});
+</script>
+
+</body>
+</html>

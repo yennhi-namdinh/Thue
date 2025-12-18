@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cảm ơn khách hàng</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,sans-serif}
+body{background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");}
+
+/* ===== HEADER ===== */
+header{
+  height:60px;
+  background-image: url("https://sf-static.upanhlaylink.com/img/image_20251212d61a5793e66e5b2cddc43dc7f2c83e86.jpg");
+  color:white;
+  display:flex;
+  align-items:center;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.back{
+  margin-left:14px;
+  font-size:22px;
+  cursor:pointer;
+}
+header h1{
+  flex:1;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+}
+
+/* ===== MAIN ===== */
+main{
+  padding:20px;
+  max-width:1100px;
+  margin:auto;
+}
+
+/* TITLE */
+.title{
+  font-size:30px;
+  font-weight:bold;
+  color:#ff4d94;
+  margin-bottom:10px;
+}
+
+/* DESC */
+.desc{
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 6px 16px rgba(0,0,0,.08);
+  margin-bottom:20px;
+  line-height:1.6;
+}
+
+/* SEARCH */
+.search{
+  margin-bottom:20px;
+}
+.search input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:15px;
+}
+
+/* ===== LIST ===== */
+.list{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:18px;
+}
+
+/* CARD */
+.card{
+  background:white;
+  border-radius:18px;
+  padding:16px;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.08);
+}
+.card .info{
+  flex:1;
+}
+.card h3{
+  font-size:17px;
+  margin-bottom:8px;
+}
+.card p{
+  font-size:14px;
+  color:#666;
+  margin-bottom:10px;
+}
+.card button{
+  padding:8px 16px;
+  border:none;
+  border-radius:10px;
+  background:#ff4d94;
+  color:white;
+  cursor:pointer;
+}
+.card img{
+  width:80px;
+  height:80px;
+  border-radius:14px;
+  object-fit:cover;
+}
+
+/* ===== POPUP ===== */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+}
+.overlay.open{display:flex}
+.popup{
+  width:92%;
+  max-width:900px;
+  background:white;
+  border-radius:20px;
+  display:flex;
+  overflow:hidden;
+}
+.popup img{
+  width:45%;
+  object-fit:cover;
+}
+.popup .content{
+  flex:1;
+  padding:24px;
+  position:relative;
+}
+.popup h2{
+  color:#ff4d94;
+  margin-bottom:12px;
+}
+.popup p{
+  color:#444;
+  line-height:1.6;
+  font-size:15px;
+}
+.popup button{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  padding:10px 22px;
+  border:none;
+  border-radius:12px;
+  background:#ff4d94;
+  color:white;
+  font-size:15px;
+  cursor:pointer;
+}
+
+/* ===== ZALO ===== */
+.zalo{
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  width:64px;
+  height:64px;
+  background:#0068ff;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.3);
+  animation:shake 1.2s infinite;
+  z-index:3000;
+}
+.zalo img{width:36px}
+@keyframes shake{
+  0%,100%{transform:rotate(0)}
+  25%{transform:rotate(7deg)}
+  75%{transform:rotate(-7deg)}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="back" onclick="history.back()">←</div>
+  <h1>💖 Cảm ơn bạn 💖</h1>
+</header>
+
+<main>
+  <div class="title">Cảm ơn các khách đã thuê bên shop</div>
+
+  <div class="desc">
+    Trang này dùng để lưu lại và tri ân những khách hàng đã tin tưởng
+    thuê dịch vụ của shop. Đây là động lực để shop ngày càng phục vụ tốt hơn 💕
+  </div>
+
+  <div class="search">
+    <input id="search" placeholder="🔍 Tìm khách đã thuê theo tên...">
+  </div>
+
+  <div class="list" id="list"></div>
+</main>
+
+<!-- POPUP -->
+<div class="overlay" id="overlay" onclick="closePopup()">
+  <div class="popup" onclick="event.stopPropagation()">
+    <img id="pImg">
+    <div class="content">
+      <h2 id="pTitle"></h2>
+      <p id="pDesc"></p>
+      <button onclick="closePopup()">Đóng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ZALO -->
+<a class="zalo" href="https://zalo.me/SHOP_ID_CUA_BAN" target="_blank">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg">
+</a>
+
+<!-- ===== FIREBASE ===== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  query,
+  orderBy,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+/* 🔥 FIREBASE SHOPNHI */
+const firebaseConfig = {
+  apiKey: "AIzaSyAI8pEVc8x9EFDUE6kaRZiZIil3HonY_FE",
+  authDomain: "shopnhi.firebaseapp.com",
+  projectId: "shopnhi",
+  storageBucket: "shopnhi.firebasestorage.app",
+  messagingSenderId: "153363642598",
+  appId: "1:153363642598:web:8aabe4efd494ad8f2b2327"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const list = document.getElementById("list");
+const search = document.getElementById("search");
+
+let cache=[];
+
+/* LOAD DATA */
+onSnapshot(
+  query(collection(db,"thanks"),orderBy("createdAt","desc")),
+  snap=>{
+    cache=[];
+    snap.forEach(d=>cache.push(d.data()));
+    render(cache);
+  }
+);
+
+/* RENDER */
+function render(arr){
+  list.innerHTML="";
+  arr.forEach(n=>{
+    const div=document.createElement("div");
+    div.className="card";
+    div.innerHTML=`
+      <div class="info">
+        <h3>${n.title}</h3>
+        <p>${n.desc.slice(0,70)}...</p>
+        <button>Xem</button>
+      </div>
+      <img src="${n.img}">
+    `;
+    div.querySelector("button").onclick=()=>openPopup(n);
+    list.appendChild(div);
+  });
+}
+
+/* SEARCH */
+search.oninput=()=>{
+  const k=search.value.toLowerCase();
+  render(cache.filter(n=>n.title.toLowerCase().includes(k)));
+};
+
+/* POPUP */
+window.openPopup=(n)=>{
+  pImg.src=n.img;
+  pTitle.textContent=n.title;
+  pDesc.textContent=n.desc;
+  overlay.classList.add("open");
+};
+window.closePopup=()=>overlay.classList.remove("open");
+document.body.style.zoom = "60%";
+</script>
+
+</body>
+</html>
